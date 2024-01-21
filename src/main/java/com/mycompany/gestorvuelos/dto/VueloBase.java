@@ -4,23 +4,15 @@ import java.util.Date;
 
 /**
  * Almacena los datos básicos del vuelo que opera en el aeropuerto.
+ *
  * @author PVita
  */
 public class VueloBase
 {
-    // TODO - FORMATO: Número entero positivo cuyo máximo es 9999
-    // Ejemplos de códigos de vuelos válidos: V73585, IB480
-    private String codigo;
-    private Aeropuerto aeropuertoOrigen;
-    private Aeropuerto aeropuertoDestino;
-    private int plazas;
-    private Date horaSalida;
-    private Date horaLlegada;
-    // TODO - FORMATO: Cadena con siete caracteres que contiene qué días de la semana opera el vuelo. Por ejemplo, si lo hace todos los días: “LMXJVSD”.
-    private String diasOperacion;
 
     /**
      * Crea un objeto base del vuelo.
+     *
      * @param codigo Código identificador del vuelo.
      * @param aeropuertoOrigen Aeropuerto de partida.
      * @param aeropuertoDestino Aeropuerto de destino.
@@ -109,4 +101,15 @@ public class VueloBase
     {
         this.diasOperacion = diasOperacion;
     }
+
+    // TODO - FORMATO: Número entero positivo cuyo máximo es 9999
+    // Ejemplos de códigos de vuelos válidos: V73585, IB480
+    private String codigo;
+    private Aeropuerto aeropuertoOrigen;
+    private Aeropuerto aeropuertoDestino;
+    private int plazas;
+    private Date horaSalida;
+    private Date horaLlegada;
+    // TODO - FORMATO: Cadena con siete caracteres que contiene qué días de la semana opera el vuelo. Por ejemplo, si lo hace todos los días: “LMXJVSD”.
+    private String diasOperacion;
 }

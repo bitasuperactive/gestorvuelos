@@ -3,23 +3,17 @@ package com.mycompany.gestorvuelos.dto;
 import java.util.Date;
 
 /**
- * Almacena datos más detallados sobre el vuelo que despega o recibe el aeropuerto.
+ * Almacena datos más detallados sobre el vuelo que despega o recibe el
+ * aeropuerto.
+ *
  * @author PVita
  */
 public class VueloDiario
 {
-    private VueloBase vueloBase;
-    // TODO - VALIDACIÓN: Hay que comprobar que es coherente con los días que opera el vuelo.
-    private Date fechaSalida;
-    // TODO - IMPLEMENTACIÓN: se registrarán las horas previstas pudiendo cambiarlas para reflejar si el vuelo llega o sale tarde.
-    private Date horaSalida;
-    // TODO - IMPLEMENTACIÓN: se registrarán las horas previstas pudiendo cambiarlas para reflejar si el vuelo llega o sale tarde.
-    private Date horaLlegada;
-    private int plazasOcupadas;
-    private float precioPlaza;
 
     /**
      * Crea un objeto del vuelo diario.
+     *
      * @param vueloBase Información base del vuelo que se va a efectuar.
      * @param fechaSalida Fecha de salida.
      * @param horaSalida Hora de salida.
@@ -96,4 +90,14 @@ public class VueloDiario
     {
         this.precioPlaza = precioPlaza;
     }
+
+    private VueloBase vueloBase;
+    // TODO - VALIDACIÓN: Hay que comprobar que es coherente con los días que opera el vuelo.
+    private Date fechaSalida;
+    // TODO - IMPLEMENTACIÓN: se registrarán las horas previstas pudiendo cambiarlas para reflejar si el vuelo llega o sale tarde.
+    private Date horaSalida;
+    // TODO - IMPLEMENTACIÓN: se registrarán las horas previstas pudiendo cambiarlas para reflejar si el vuelo llega o sale tarde.
+    private Date horaLlegada;
+    private int plazasOcupadas;
+    private float precioPlaza;
 }

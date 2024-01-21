@@ -2,26 +2,15 @@ package com.mycompany.gestorvuelos.dto;
 
 /**
  * Almacena todos los datos referentes a la compañia aerea.
+ *
  * @author PVita
  */
 public class Compania
 {
-    // TODO - FORMATO: Código numérico entero positivo cuyo máximo es 999 (identificador).
-    private int prefijo;
-    // TODO - FORMATO: Puede contener dos letras mayúsculas o una mayúscula y un número (en este orden).
-    // Ejemplos válidos: IB, V7
-    // Ejemplos no válidos: 7V, ib, Ib, iB, 8a, 7-
-    private String codigo;
-    private String nombre;
-    private String direccionSedeCentral;
-    private String municipioSedeCentral;
-    // TODO - FORMATO:  Se componen de un código de país con tres dígitos y el resto de teléfono contendrá un máximo de 12 dígitos más.
-    private int telefonoATC;
-    // TODO - FORMATO: Se componen de un código de país con tres dígitos y el resto de teléfono contendrá un máximo de 12 dígitos más.
-    private int telefonoATA;
 
     /**
      * Crea un objeto de la compañia aerea.
+     *
      * @param prefijo Código numérico entero positivo cuyo máximo es 999.
      * @param codigo Cadena de dos caracteres de tamaño fijo.
      * @param nombre Nombre de la compañia.
@@ -40,7 +29,7 @@ public class Compania
         this.telefonoATC = telefonoATC;
         this.telefonoATA = telefonoATA;
     }
-    
+
     public int getPrefijo()
     {
         return prefijo;
@@ -110,4 +99,18 @@ public class Compania
     {
         this.telefonoATA = telefonoATA;
     }
+
+    // TODO - FORMATO: Código numérico entero positivo cuyo máximo es 999 (identificador).
+    private int prefijo;
+    // TODO - FORMATO: Puede contener dos letras mayúsculas o una mayúscula y un número (en este orden).
+    // Ejemplos válidos: IB, V7
+    // Ejemplos no válidos: 7V, ib, Ib, iB, 8a, 7-
+    private String codigo;
+    private String nombre;
+    private String direccionSedeCentral;
+    private String municipioSedeCentral;
+    // TODO - FORMATO:  Se componen de un código de país con tres dígitos y el resto de teléfono contendrá un máximo de 12 dígitos más.
+    private int telefonoATC;
+    // TODO - FORMATO: Se componen de un código de país con tres dígitos y el resto de teléfono contendrá un máximo de 12 dígitos más.
+    private int telefonoATA;
 }
