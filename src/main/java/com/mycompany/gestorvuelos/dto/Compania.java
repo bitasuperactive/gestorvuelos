@@ -7,6 +7,14 @@ package com.mycompany.gestorvuelos.dto;
  */
 public class Compania
 {
+    
+    /**
+     * Crea un objeto vacío de la compañia aerea.
+     */
+    public Compania()
+    {
+        
+    }
 
     /**
      * Crea un objeto de la compañia aerea.
