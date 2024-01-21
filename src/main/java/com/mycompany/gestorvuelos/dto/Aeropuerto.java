@@ -24,4 +24,34 @@ public class Aeropuerto
         this.nombre = nombre;
         this.codigoMunicipio = codigoMunicipio;
     }
+
+    public String getCodigoIATA()
+    {
+        return codigoIATA;
+    }
+
+    public void setCodigoIATA(String codigoIATA)
+    {
+        this.codigoIATA = codigoIATA;
+    }
+
+    public String getNombre()
+    {
+        return nombre;
+    }
+
+    public void setNombre(String nombre)
+    {
+        this.nombre = nombre;
+    }
+
+    public int getCodigoMunicipio()
+    {
+        return codigoMunicipio;
+    }
+
+    public void setCodigoMunicipio(int codigoMunicipio)
+    {
+        this.codigoMunicipio = codigoMunicipio;
+    }
 }
