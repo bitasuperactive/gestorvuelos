@@ -34,7 +34,7 @@ De un modo general, la aplicación manejará los siguientes datos:
   - Debe contener los siguientes campos: 
     - Código IATA. 
     - Nombre. 
-    - Código de municipio. Si es español, código según el INE, el cual servirá para el servicio meteorológico. Se trata de una cadena de cinco caracteres numéricos. Si es internacional, el código será 0000. 
+    - Código de municipio. Si es español, código según el INE, el cual servirá para el servicio meteorológico. Se trata de una cadena de cinco caracteres numéricos. Si es internacional, el código será 00000. 
   - Número de plazas. Las que tiene disponibles el vuelo en total. 
   - Hora oficial de salida.  
   - Hora oficial de llegada. 
