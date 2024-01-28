@@ -1,6 +1,7 @@
 package com.mycompany.gestorvuelos.logica_negocio;
 
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
+import com.mycompany.gestorvuelos.dto.Compania;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,11 +30,11 @@ public class CsvManager
      * @return Lista de aeropuertos.
      * @throws java.io.IOException Si el archivo (.csv) es inaccesible.
      */
-    static List<Aeropuerto> retrieveListAeropuertos() throws IOException
+    static List<Aeropuerto> retrieveListAeropuerto() throws IOException
     {
-        ArrayList<Aeropuerto> listAeropuertos = new ArrayList();
+        ArrayList<Aeropuerto> listAeropuerto = new ArrayList();
         
-        String aeropuertosCsvPath = Util.csvPaths.getAeropuertos();
+        String aeropuertosCsvPath = Util.getCsvPaths().getAeropuertos();
         
         // Codificación UTF-8 con BOM.
         BufferedReader reader = new BufferedReader(new FileReader(aeropuertosCsvPath, StandardCharsets.UTF_8));
@@ -50,30 +51,79 @@ public class CsvManager
             int codigoMunicipio = retrieveCodigoMunicipio(municipio);
 
             Aeropuerto aeropuerto = new Aeropuerto(codigoIATA, nombre, codigoMunicipio);
-            listAeropuertos.add(aeropuerto);
+            listAeropuerto.add(aeropuerto);
         }
 
-        return listAeropuertos;
+        return listAeropuerto;
+    }
+    /**
+     * Crea la lista de compañias disponibles.
+     * <br><br>
+     * <b>Limitaciones:</b> <br> 
+     * <pre>     No se valida el contenido del archivo (.csv).</pre>
+     * @return Lista de compañias.
+     * @throws java.io.IOException Si el archivo (.csv) es inaccesible.
+     */
+    static List<Compania> retrieveListCompania() throws IOException
+    {
+        ArrayList<Compania> listCompania = new ArrayList();
+        
+        String companiasCsvPath = Util.getCsvPaths().getCompanias();
+        
+        // Codificación UTF-8 con BOM.
+        BufferedReader reader = new BufferedReader(new FileReader(companiasCsvPath, StandardCharsets.UTF_8));
+        String row;
+        
+        // Omitir encabezados de las columnas.
+        reader.readLine();
+        while ((row = reader.readLine()) != null) {
+            String[] companiaData = row.split(";");
+
+            // Must-have values.
+            int prefijo = Integer.parseInt(companiaData[0]);
+            String codigo = companiaData[1];
+            String nombre = companiaData[2];
+            // Optional values.
+            String direccionSedeCentral = "not-registered";
+            String municipioSedeCentral = "not-registered";
+            int telefonoATC = 0;
+            int telefonoATA = 0;
+            if (companiaData.length > 3) // TODO - Mejorar la recuperación de los datos de las compaías.
+            {
+                if (companiaData.length < 7)
+                    throw new ArrayIndexOutOfBoundsException("Los valores opcionales estan incompletos.");
+                
+                direccionSedeCentral = companiaData[3];
+                municipioSedeCentral = companiaData[4];
+                telefonoATC = Integer.parseInt(companiaData[5]);
+                telefonoATA = Integer.parseInt(companiaData[6]);
+            }
+            
+            Compania compania = new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATC, telefonoATA);
+            listCompania.add(compania);
+        }
+
+        return listCompania;
     }
     
     // ---> ACCESS MODIFIER: CLASS-PRIVATE <---
-    private static Map<String, Integer> municipios;
+    private static Map<String, Integer> mapMunicipios;
     
     private static int retrieveCodigoMunicipio(String municipio) throws IOException
     {
-        municipios = (municipios == null) ? getMunicipios() : municipios;
+        mapMunicipios = (mapMunicipios == null) ? getMapMunicipios() : mapMunicipios;
         
-        // Valor por defecto para municipios internacionales.
-        int codigoMunicipio = municipios.getOrDefault(municipio, 0);
+        // Valor por defecto para mapMunicipios internacionales.
+        int codigoMunicipio = mapMunicipios.getOrDefault(municipio, 0);
         
         return codigoMunicipio;
     }
     
     
-    private static Map<String, Integer> getMunicipios() throws IOException
+    private static Map<String, Integer> getMapMunicipios() throws IOException
     {
-        Map<String, Integer> municipios = new HashMap();
-        String municipiosCsvPath = Util.csvPaths.getMunicipios();
+        Map<String, Integer> mapMunicipios = new HashMap();
+        String municipiosCsvPath = Util.getCsvPaths().getMunicipios();
         
         // Codificación ANSI.
         BufferedReader reader = new BufferedReader(new FileReader(municipiosCsvPath, Charset.forName("Cp1252")));
@@ -85,9 +135,9 @@ public class CsvManager
             String[] rowVals = row.split(";");
             int codigoMunicipio = Integer.parseInt(rowVals[0].trim());
             String municipio = rowVals[1].trim();
-            municipios.put(municipio, codigoMunicipio);
+            mapMunicipios.put(municipio, codigoMunicipio);
         }
         
-        return municipios;
+        return mapMunicipios;
     }
 }
