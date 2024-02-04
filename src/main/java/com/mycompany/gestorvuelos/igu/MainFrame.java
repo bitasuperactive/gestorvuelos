@@ -5,8 +5,10 @@
 package com.mycompany.gestorvuelos.igu;
 
 import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.logica_negocio.ListManager;
-import com.mycompany.gestorvuelos.logica_negocio.Util;
+import com.mycompany.gestorvuelos.igu.logica.CompaniaSearcherListener;
+import com.mycompany.gestorvuelos.igu.logica.SearchTypeEnum;
+import com.mycompany.gestorvuelos.negocio.logica.ListManager;
+import com.mycompany.gestorvuelos.negocio.logica.Util;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import static java.awt.image.ImageObserver.HEIGHT;
@@ -14,6 +16,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -33,50 +37,8 @@ public class MainFrame extends javax.swing.JFrame
         
         try {
             Util.initUtils("ABC");
-            tResults.setModel(new CompaniaTableModel(Util.getListCompania()));
-            
-            
-            ftfSearcher.getDocument().addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e)
-                {
-                    try {
-                        int prefijo = Integer.parseInt(ftfSearcher.getText());
-                        var listCompania = ListManager.getListCompaniaByPrefijo(prefijo);
-                        tResults.setModel(new CompaniaTableModel(listCompania));
-                    } catch (NumberFormatException numberFormatException) {
-                        System.err.println("Error de formato en la búsqueda.");
-                    }
-                }
-
-                @Override
-                public void removeUpdate(DocumentEvent e)
-                {
-                    if (ftfSearcher.getText().isEmpty())
-                    {
-                        tResults.setModel(new CompaniaTableModel(Util.getListCompania()));
-                        return;
-                    }
-                    
-                    try {
-                        int prefijo = Integer.parseInt(ftfSearcher.getText());
-                        var listCompania = ListManager.getListCompaniaByPrefijo(prefijo);
-                        tResults.setModel(new CompaniaTableModel(listCompania));
-                    } catch (NumberFormatException numberFormatException) {
-                        System.err.println("Error de formato en la búsqueda.");
-                    }
-                }
-
-                @Override
-                public void changedUpdate(DocumentEvent e)
-                {
-                    
-                }
-            
-        });
-            
-            
-            
+            tResults.setModel(new CompaniaTableModel(Util.getListCompania(), true));
+            tfCompaniaSearcher.getDocument().addDocumentListener(new CompaniaSearcherListener(cbSearchType, tResults));
         } catch (IOException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
@@ -94,25 +56,21 @@ public class MainFrame extends javax.swing.JFrame
     private void initComponents()
     {
 
-        pBuscador = new javax.swing.JPanel();
-        ftfSearcher = new javax.swing.JFormattedTextField();
-        jPanel1 = new javax.swing.JPanel();
+        pCompanias = new javax.swing.JPanel();
+        pResults = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tResults = new javax.swing.JTable();
+        pBuscador = new javax.swing.JPanel();
+        cbSearchType = new javax.swing.JComboBox<>();
+        tfCompaniaSearcher = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Buscador", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
-        pBuscador.setLayout(new javax.swing.BoxLayout(pBuscador, javax.swing.BoxLayout.LINE_AXIS));
+        pCompanias.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Compañías", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
+        pCompanias.setLayout(new java.awt.BorderLayout(0, 10));
 
-        ftfSearcher.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
-        pBuscador.add(ftfSearcher);
-
-        getContentPane().add(pBuscador, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 430, -1));
-
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Resultados de búsqueda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
-        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
+        pResults.setBorder(javax.swing.BorderFactory.createTitledBorder("Resultados de búsqueda"));
+        pResults.setLayout(new javax.swing.BoxLayout(pResults, javax.swing.BoxLayout.LINE_AXIS));
 
         tResults.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][]
@@ -129,9 +87,35 @@ public class MainFrame extends javax.swing.JFrame
         ));
         jScrollPane1.setViewportView(tResults);
 
-        jPanel1.add(jScrollPane1);
+        pResults.add(jScrollPane1);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, 430, 350));
+        pCompanias.add(pResults, java.awt.BorderLayout.CENTER);
+
+        pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
+        pBuscador.setLayout(new java.awt.BorderLayout(10, 0));
+
+        cbSearchType.setModel(new DefaultComboBoxModel<>(SearchTypeEnum.valuesToString()));
+        pBuscador.add(cbSearchType, java.awt.BorderLayout.LINE_START);
+        pBuscador.add(tfCompaniaSearcher, java.awt.BorderLayout.CENTER);
+
+        pCompanias.add(pBuscador, java.awt.BorderLayout.PAGE_START);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pCompanias, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(356, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -175,10 +159,12 @@ public class MainFrame extends javax.swing.JFrame
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JFormattedTextField ftfSearcher;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox<String> cbSearchType;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel pBuscador;
+    private javax.swing.JPanel pCompanias;
+    private javax.swing.JPanel pResults;
     private javax.swing.JTable tResults;
+    private javax.swing.JTextField tfCompaniaSearcher;
     // End of variables declaration//GEN-END:variables
 }

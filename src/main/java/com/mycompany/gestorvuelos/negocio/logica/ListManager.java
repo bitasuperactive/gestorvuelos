@@ -1,7 +1,8 @@
-package com.mycompany.gestorvuelos.logica_negocio;
+package com.mycompany.gestorvuelos.negocio.logica;
 
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,26 +30,34 @@ public class ListManager
         return aeropuerto.orElseThrow();
     }
     
-    public static List<Compania> getListCompaniaByPrefijo(int prefijo)
+    public static List<Compania> getListCompaniaByNombre(String nombre)
     {
-        return  Util.getListCompania().stream()
-                .filter(c -> containsSubstring(String.valueOf(c.getPrefijo()), String.valueOf(prefijo)))
+        return Util.getListCompania().stream()
+                .filter(c -> normalizeString(c.getNombre()).contains(normalizeString(nombre)))
                 .collect(Collectors.toList());
     }
     
-    private static boolean containsSubstring(String str, String sub) {
-        int lastIndex = -1;
-
-        for (char c : sub.toCharArray()) {
-            int index = str.indexOf(c, lastIndex + 1);
-
-            if (index != lastIndex + 1) {
-                return false;  // Si no se encuentra el carácter, la subcadena no está presente en orden
-            }
-
-            lastIndex = index;
+    public static List<Compania> getListCompaniaByPrefijo(int prefijo)
+    {
+        return  Util.getListCompania().stream()
+                .filter(c -> containsNumber(String.valueOf(c.getPrefijo()), String.valueOf(prefijo)))
+                .collect(Collectors.toList());
+    }
+    
+    private static boolean containsNumber(String str, String sub) {
+        int matches = 0;
+        
+        for (int i = 0; i < Math.min(str.length(), sub.length()); i++)
+        {
+            if (str.charAt(i) == sub.charAt(i))
+                matches++;
         }
-
-        return true;
+        return matches == sub.length();
+    }
+    
+    private static String normalizeString(String input) {
+        // Elimina los diacríticos de la cadena y transfora mayúsculas en minúsculas.
+        return Normalizer.normalize(input.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 }

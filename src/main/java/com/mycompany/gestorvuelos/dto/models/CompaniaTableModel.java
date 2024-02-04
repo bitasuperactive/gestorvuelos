@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.gestorvuelos.dto.models;
 
 import com.mycompany.gestorvuelos.dto.Compania;
@@ -16,10 +12,19 @@ public class CompaniaTableModel extends AbstractTableModel
 {
     private List<Compania> listCompania;
     private String[] columnNames = {"Prefijo", "Código", "Nombre", "Dirección Sede Central", "Municipio Sede Central", "Teléfono ATC", "Teléfono ATA"};
-
+    private boolean shorterTable;
+    
     public CompaniaTableModel(List<Compania> listCompania)
     {
         this.listCompania = listCompania;
+    }
+
+    public CompaniaTableModel(List<Compania> listCompania, boolean shorterTable)
+    {
+        this.listCompania = listCompania;
+        if (this.shorterTable = shorterTable) {
+            columnNames = new String[]{"Prefijo", "Nombre"};
+        }
     }
 
     @Override
@@ -44,6 +49,8 @@ public class CompaniaTableModel extends AbstractTableModel
                 return compania.getPrefijo();
             }
             case 1 -> {
+                if (shorterTable)
+                    return compania.getNombre();
                 return compania.getCodigo();
             }
             case 2 -> {
@@ -69,5 +76,11 @@ public class CompaniaTableModel extends AbstractTableModel
     public String getColumnName(int column)
     {
         return columnNames[column];
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex)
+    {
+        return false;
     }
 }

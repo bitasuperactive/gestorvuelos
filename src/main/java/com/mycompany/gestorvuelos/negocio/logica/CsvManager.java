@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.logica_negocio;
+package com.mycompany.gestorvuelos.negocio.logica;
 
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
@@ -80,9 +80,9 @@ public class CsvManager
             String[] companiaData = row.split(";");
 
             // Must-have values.
-            int prefijo = Integer.parseInt(companiaData[0]);
-            String codigo = companiaData[1];
-            String nombre = companiaData[2];
+            int prefijo = Integer.parseInt(companiaData[0].trim());
+            String codigo = companiaData[1].trim();
+            String nombre = companiaData[2].trim();
             // Optional values.
             String direccionSedeCentral = "not-registered";
             String municipioSedeCentral = "not-registered";
@@ -93,10 +93,10 @@ public class CsvManager
                 if (companiaData.length < 7)
                     throw new ArrayIndexOutOfBoundsException("Los valores opcionales estan incompletos.");
                 
-                direccionSedeCentral = companiaData[3];
-                municipioSedeCentral = companiaData[4];
-                telefonoATC = Integer.parseInt(companiaData[5]);
-                telefonoATA = Integer.parseInt(companiaData[6]);
+                direccionSedeCentral = companiaData[3].trim();
+                municipioSedeCentral = companiaData[4].trim();
+                telefonoATC = Integer.parseInt(companiaData[5].trim());
+                telefonoATA = Integer.parseInt(companiaData[6].trim());
             }
             
             Compania compania = new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATC, telefonoATA);

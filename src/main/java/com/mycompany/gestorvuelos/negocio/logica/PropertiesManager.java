@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.logica_negocio;
+package com.mycompany.gestorvuelos.negocio.logica;
 
 import com.mycompany.gestorvuelos.dto.CsvPaths;
 import java.io.File;
