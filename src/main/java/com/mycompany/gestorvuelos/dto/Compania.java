@@ -7,13 +7,18 @@ package com.mycompany.gestorvuelos.dto;
  */
 public class Compania
 {
-    
     /**
-     * Crea un objeto vacío de la compañia aerea.
+     * Crea una compañia aerea sin datos.
      */
     public Compania()
     {
-        
+        this.prefijo = 0;
+        this.codigo = "";
+        this.nombre = "";
+        this.direccionSedeCentral = "";
+        this.municipioSedeCentral = "";
+        this.telefonoATC = 0;
+        this.telefonoATA = 0;
     }
 
     /**
