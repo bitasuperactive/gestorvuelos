@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.gestorvuelos.igu;
 
+import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.igu.logica.CompaniaSearcherListener;
-import com.mycompany.gestorvuelos.igu.logica.SearchTypeEnum;
+import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener;
+import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.negocio.logica.ListManager;
 import com.mycompany.gestorvuelos.negocio.logica.Util;
 import java.awt.event.ActionEvent;
@@ -14,12 +11,17 @@ import java.awt.event.ActionListener;
 import static java.awt.image.ImageObserver.HEIGHT;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.basic.BasicListUI;
 
 /**
  *
@@ -33,15 +35,51 @@ public class MainFrame extends javax.swing.JFrame
      */
     public MainFrame()
     {
+        initUtils();
         initComponents();
         
+        tCompaniaResults.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e)
+            {
+                if (!e.getValueIsAdjusting())
+                {
+                    CompaniaTableModel model = (CompaniaTableModel) tCompaniaResults.getModel();
+                    Compania compania = new Compania();
+                    try {
+                        compania = model.getCompaniaAt(tCompaniaResults.getSelectedRow());
+                    } catch (IndexOutOfBoundsException ex) {
+                        // No es necesario manejar esta excepción.
+                    }
+                    fillCompaniaDetails(compania);
+                }
+            }
+        });
+    }
+    
+    private void fillCompaniaDetails(Compania compania)
+    {
+        ftfPrefijo.setText(String.valueOf(compania.getPrefijo()));
+        tfCodigo.setText(String.valueOf(compania.getCodigo()));
+        tfNombre.setText(compania.getNombre());
+        tfDireccionSedeCentral.setText(compania.getDireccionSedeCentral());
+        
+        if (!compania.getMunicipioSedeCentral().isEmpty()) {
+            cbMunicipioSedeCentral.setSelectedItem(compania.getMunicipioSedeCentral());
+        } else {
+            cbMunicipioSedeCentral.setSelectedIndex(-1);
+        }
+
+        ftfTelefonoATC.setText(String.valueOf(compania.getTelefonoATC()));
+        ftfTelefonoATA.setText(String.valueOf(compania.getTelefonoATA()));
+    }
+    
+    private void initUtils()
+    {
         try {
+            // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
             Util.initUtils("ABC");
-            tResults.setModel(new CompaniaTableModel(Util.getListCompania(), true));
-            tfCompaniaSearcher.getDocument().addDocumentListener(new CompaniaSearcherListener(cbSearchType, tResults));
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
+        } catch (IOException | IllegalArgumentException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -59,10 +97,36 @@ public class MainFrame extends javax.swing.JFrame
         pCompanias = new javax.swing.JPanel();
         pResults = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tResults = new javax.swing.JTable();
+        tCompaniaResults = new javax.swing.JTable();
         pBuscador = new javax.swing.JPanel();
-        cbSearchType = new javax.swing.JComboBox<>();
+        cbCompaniaSearchType = new javax.swing.JComboBox<>();
         tfCompaniaSearcher = new javax.swing.JTextField();
+        pCompaniaDetails = new javax.swing.JPanel();
+        pData = new javax.swing.JPanel();
+        pPrefijo = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        ftfPrefijo = new javax.swing.JFormattedTextField();
+        pCodigo = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        tfCodigo = new javax.swing.JTextField();
+        pNombre = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        tfNombre = new javax.swing.JTextField();
+        pDireccionSedeCentral = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        tfDireccionSedeCentral = new javax.swing.JTextField();
+        pMunicipioSedeCentral = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        cbMunicipioSedeCentral = new javax.swing.JComboBox<>();
+        pTelefonoATC = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        ftfTelefonoATC = new javax.swing.JFormattedTextField();
+        pTelefonoATA = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
+        ftfTelefonoATA = new javax.swing.JFormattedTextField();
+        pActions = new javax.swing.JPanel();
+        bShutdownCompania = new javax.swing.JButton();
+        bSaveChangesCompania = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,20 +136,8 @@ public class MainFrame extends javax.swing.JFrame
         pResults.setBorder(javax.swing.BorderFactory.createTitledBorder("Resultados de búsqueda"));
         pResults.setLayout(new javax.swing.BoxLayout(pResults, javax.swing.BoxLayout.LINE_AXIS));
 
-        tResults.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String []
-            {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane1.setViewportView(tResults);
+        tCompaniaResults.setModel(new CompaniaTableModel(Util.getListCompania(), true));
+        jScrollPane1.setViewportView(tCompaniaResults);
 
         pResults.add(jScrollPane1);
 
@@ -94,11 +146,121 @@ public class MainFrame extends javax.swing.JFrame
         pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
         pBuscador.setLayout(new java.awt.BorderLayout(10, 0));
 
-        cbSearchType.setModel(new DefaultComboBoxModel<>(SearchTypeEnum.valuesToString()));
-        pBuscador.add(cbSearchType, java.awt.BorderLayout.LINE_START);
+        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum.valuesToString()));
+        pBuscador.add(cbCompaniaSearchType, java.awt.BorderLayout.LINE_START);
+
+        tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
         pBuscador.add(tfCompaniaSearcher, java.awt.BorderLayout.CENTER);
 
         pCompanias.add(pBuscador, java.awt.BorderLayout.PAGE_START);
+
+        pCompaniaDetails.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Detalles de la compañía", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
+        pCompaniaDetails.setLayout(new java.awt.BorderLayout(0, 20));
+
+        pData.setLayout(new java.awt.GridLayout(7, 0, 0, 5));
+
+        pPrefijo.setBackground(new java.awt.Color(232, 232, 232));
+        pPrefijo.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        pPrefijo.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel1.setText("Prefijo:");
+        pPrefijo.add(jLabel1);
+
+        ftfPrefijo.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        ftfPrefijo.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        ftfPrefijo.setEnabled(false);
+        ftfPrefijo.setPreferredSize(new java.awt.Dimension(64, 22));
+        pPrefijo.add(ftfPrefijo);
+
+        pData.add(pPrefijo);
+
+        pCodigo.setBackground(new java.awt.Color(232, 232, 232));
+        pCodigo.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        pCodigo.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel2.setText("Código:");
+        pCodigo.add(jLabel2);
+
+        tfCodigo.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        tfCodigo.setEnabled(false);
+        tfCodigo.setPreferredSize(new java.awt.Dimension(38, 22));
+        pCodigo.add(tfCodigo);
+
+        pData.add(pCodigo);
+
+        pNombre.setBackground(new java.awt.Color(232, 232, 232));
+        pNombre.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        pNombre.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel3.setText("Nombre:");
+        pNombre.add(jLabel3);
+
+        tfNombre.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        tfNombre.setEnabled(false);
+        tfNombre.setPreferredSize(new java.awt.Dimension(242, 26));
+        pNombre.add(tfNombre);
+
+        pData.add(pNombre);
+
+        pDireccionSedeCentral.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel4.setText("Dirección sede central:");
+        pDireccionSedeCentral.add(jLabel4);
+
+        tfDireccionSedeCentral.setPreferredSize(new java.awt.Dimension(367, 26));
+        pDireccionSedeCentral.add(tfDireccionSedeCentral);
+
+        pData.add(pDireccionSedeCentral);
+
+        pMunicipioSedeCentral.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel5.setText("Municipio sede central:");
+        pMunicipioSedeCentral.add(jLabel5);
+
+        cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<String>(Util.getMapMunicipios().keySet().toArray(new String[0])));
+        cbMunicipioSedeCentral.setPreferredSize(new java.awt.Dimension(144, 22));
+        pMunicipioSedeCentral.add(cbMunicipioSedeCentral);
+
+        pData.add(pMunicipioSedeCentral);
+
+        pTelefonoATC.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel6.setText("Teléfono ATC:");
+        pTelefonoATC.add(jLabel6);
+
+        ftfTelefonoATC.setPreferredSize(new java.awt.Dimension(85, 22));
+        pTelefonoATC.add(ftfTelefonoATC);
+
+        pData.add(pTelefonoATC);
+
+        pTelefonoATA.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+
+        jLabel7.setText("Teléfono ATA:");
+        pTelefonoATA.add(jLabel7);
+
+        ftfTelefonoATA.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        ftfTelefonoATA.setPreferredSize(new java.awt.Dimension(85, 22));
+        pTelefonoATA.add(ftfTelefonoATA);
+
+        pData.add(pTelefonoATA);
+
+        pCompaniaDetails.add(pData, java.awt.BorderLayout.CENTER);
+
+        pActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        pActions.setLayout(new java.awt.BorderLayout());
+
+        bShutdownCompania.setText("Dar de baja");
+        bShutdownCompania.setBorder(bSaveChangesCompania.getBorder());
+        bShutdownCompania.setEnabled(false);
+        pActions.add(bShutdownCompania, java.awt.BorderLayout.LINE_START);
+
+        bSaveChangesCompania.setText("Guardar cambios");
+        bSaveChangesCompania.setEnabled(false);
+        pActions.add(bSaveChangesCompania, java.awt.BorderLayout.LINE_END);
+
+        pCompaniaDetails.add(pActions, java.awt.BorderLayout.PAGE_END);
+
+        fillCompaniaDetails(new Compania());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -107,13 +269,19 @@ public class MainFrame extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pCompanias, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(356, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(pCompaniaDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pCompaniaDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -149,22 +317,44 @@ public class MainFrame extends javax.swing.JFrame
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                new MainFrame().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new MainFrame().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> cbSearchType;
+    private javax.swing.JButton bSaveChangesCompania;
+    private javax.swing.JButton bShutdownCompania;
+    private javax.swing.JComboBox<String> cbCompaniaSearchType;
+    private javax.swing.JComboBox<String> cbMunicipioSedeCentral;
+    private javax.swing.JFormattedTextField ftfPrefijo;
+    private javax.swing.JFormattedTextField ftfTelefonoATA;
+    private javax.swing.JFormattedTextField ftfTelefonoATC;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel pActions;
     private javax.swing.JPanel pBuscador;
+    private javax.swing.JPanel pCodigo;
+    private javax.swing.JPanel pCompaniaDetails;
     private javax.swing.JPanel pCompanias;
+    private javax.swing.JPanel pData;
+    private javax.swing.JPanel pDireccionSedeCentral;
+    private javax.swing.JPanel pMunicipioSedeCentral;
+    private javax.swing.JPanel pNombre;
+    private javax.swing.JPanel pPrefijo;
     private javax.swing.JPanel pResults;
-    private javax.swing.JTable tResults;
+    private javax.swing.JPanel pTelefonoATA;
+    private javax.swing.JPanel pTelefonoATC;
+    private javax.swing.JTable tCompaniaResults;
+    private javax.swing.JTextField tfCodigo;
     private javax.swing.JTextField tfCompaniaSearcher;
+    private javax.swing.JTextField tfDireccionSedeCentral;
+    private javax.swing.JTextField tfNombre;
     // End of variables declaration//GEN-END:variables
 }
