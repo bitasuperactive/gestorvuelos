@@ -94,4 +94,18 @@ public class CompaniaTableModel extends AbstractTableModel
     {
         return false;
     }
+    
+    /**
+     * Devuelve la compañía correspondiente a la posición en la tabla especificada.
+     * @param rowIndex Índice de la compañía a recuperar.
+     * @return Compañía correspondiente.
+     * @throws IndexOutOfBoundsException Si la compañía solicitada no existe en la tabla.
+     * Esto suele ocurrir cuando hemos seleccionado una compañía del listado y
+     * realizamos un filtro posterior.
+     * @see Compania
+     */
+    public Compania getCompaniaAt(int rowIndex) throws IndexOutOfBoundsException
+    {
+        return listCompania.get(rowIndex);
+    }
 }
