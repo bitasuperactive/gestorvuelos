@@ -85,7 +85,7 @@ public class CsvManager
             String nombre = companiaData[2].trim();
             // Optional values.
             String direccionSedeCentral = "not-registered";
-            String municipioSedeCentral = "not-registered";
+            String municipioSedeCentral = "";
             int telefonoATC = 0;
             int telefonoATA = 0;
             if (companiaData.length > 3) // TODO - Mejorar la recuperación de los datos de las compaías.
