@@ -1,7 +1,7 @@
 package com.mycompany.gestorvuelos.igu.logica;
 
 /**
- * Valores permitidos en el filtrado de una lista de compañías.
+ * Campos de filtrado permitidos para una lista de compañías.
  */
 public enum CompaniaSearchTypeEnum
 {
