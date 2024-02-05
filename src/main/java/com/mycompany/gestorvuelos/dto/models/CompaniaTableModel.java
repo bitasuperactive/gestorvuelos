@@ -5,25 +5,36 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 /**
- *
- * @author PVita
+ * Modelo de tabla personalizado para mostrar los campos del objeto Compania.
+ * @see Compania
  */
 public class CompaniaTableModel extends AbstractTableModel
 {
     private List<Compania> listCompania;
     private String[] columnNames = {"Prefijo", "Código", "Nombre", "Dirección Sede Central", "Municipio Sede Central", "Teléfono ATC", "Teléfono ATA"};
-    private boolean shorterTable;
+    private boolean shorterModel;
     
+    /**
+     * Crea un modelo completo de la lista de compañías.
+     * @param listCompania Lista de compañías a mostrar.
+     */
     public CompaniaTableModel(List<Compania> listCompania)
     {
         this.listCompania = listCompania;
     }
 
-    public CompaniaTableModel(List<Compania> listCompania, boolean shorterTable)
+    /**
+     * Crea un modelo completo o acortado de la lista de compañías.
+     * @param listCompania Lista de compañías a mostrar.
+     * @param shorterModel Si es verdadero, crea un modelo acortado solo con las columnas "Prefijo" y "Nombre".
+     * Si es falso, crea un modelo completo.
+     */
+    public CompaniaTableModel(List<Compania> listCompania, boolean shorterModel)
     {
         this.listCompania = listCompania;
-        if (this.shorterTable = shorterTable) {
-            columnNames = new String[]{"Prefijo", "Nombre"};
+        // La versión acortada de la tabla solo tiene las columnas "Prefijo" y "Nombre".
+        if (this.shorterModel = shorterModel) {
+            columnNames = new String[] {columnNames[0], columnNames[2]};
         }
     }
 
@@ -39,18 +50,24 @@ public class CompaniaTableModel extends AbstractTableModel
         return columnNames.length;
     }
 
+    /**
+     * @throws IndexOutOfBoundsException Si el objeto correspondiente al 
+     * rowIndex y al columnIndex no existe
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) throws IndexOutOfBoundsException
     {
         Compania compania = listCompania.get(rowIndex);
+        // Para obtener el prefijo (0) y el nombre (2).
+        if (shorterModel)
+            columnIndex *= 2;
+        
         switch(columnIndex)
         {
             case 0 -> {
                 return compania.getPrefijo();
             }
             case 1 -> {
-                if (shorterTable)
-                    return compania.getNombre();
                 return compania.getCodigo();
             }
             case 2 -> {
@@ -75,6 +92,9 @@ public class CompaniaTableModel extends AbstractTableModel
     @Override
     public String getColumnName(int column)
     {
+        if (column >= columnNames.length)
+            return "";
+        
         return columnNames[column];
     }
 
