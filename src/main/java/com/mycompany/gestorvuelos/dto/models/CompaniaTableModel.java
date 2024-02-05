@@ -13,15 +13,6 @@ public class CompaniaTableModel extends AbstractTableModel
     private List<Compania> listCompania;
     private String[] columnNames = {"Prefijo", "Código", "Nombre", "Dirección Sede Central", "Municipio Sede Central", "Teléfono ATC", "Teléfono ATA"};
     private boolean shorterModel;
-    
-    /**
-     * Crea un modelo completo de la lista de compañías.
-     * @param listCompania Lista de compañías a mostrar.
-     */
-    public CompaniaTableModel(List<Compania> listCompania)
-    {
-        this.listCompania = listCompania;
-    }
 
     /**
      * Crea un modelo completo o acortado de la lista de compañías.
