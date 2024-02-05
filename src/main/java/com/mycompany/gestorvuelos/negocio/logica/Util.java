@@ -9,6 +9,7 @@ import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.CsvPaths;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -36,6 +37,11 @@ public class Util
     {
         return aeropuertoGestion;
     }
+
+    public static Map<String, Integer> getMapMunicipios()
+    {
+        return mapMunicipios;
+    }
     // </editor-fold> 
 
     // <editor-fold defaultstate="collapsed" desc="Setters">
@@ -48,6 +54,7 @@ public class Util
     public static void initUtils(String aeropuertoBaseCodigoIATA) throws IOException, IllegalArgumentException
     {
         csvPaths = PropertiesManager.getCsvPaths();
+        mapMunicipios = CsvManager.retrieveMapMunicipios();
         listAeropuertos = CsvManager.retrieveListAeropuerto();
         listCompania = CsvManager.retrieveListCompania();
         aeropuertoGestion = ListManager.getAeropuertoByCodigoIATA(aeropuertoBaseCodigoIATA);
@@ -58,6 +65,10 @@ public class Util
      * Objeto que almacena las rutas a los archivos csv.
      */
     private static CsvPaths csvPaths;
+    /**
+     * Mapa Municipio-Código.
+     */
+    private static Map<String, Integer> mapMunicipios;
     /**
      * Lista de los aeropuertos disponibles.
      */

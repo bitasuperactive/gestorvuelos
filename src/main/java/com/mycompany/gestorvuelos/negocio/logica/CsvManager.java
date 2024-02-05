@@ -48,7 +48,7 @@ public class CsvManager
             String codigoIATA = aeropuertoData[0].trim();
             String nombre = aeropuertoData[1].trim();
             String municipio = aeropuertoData[2].trim();
-            int codigoMunicipio = retrieveCodigoMunicipio(municipio);
+            int codigoMunicipio = Util.getMapMunicipios().getOrDefault(municipio, 0);
 
             Aeropuerto aeropuerto = new Aeropuerto(codigoIATA, nombre, codigoMunicipio);
             listAeropuerto.add(aeropuerto);
@@ -106,21 +106,7 @@ public class CsvManager
         return listCompania;
     }
     
-    // ---> ACCESS MODIFIER: CLASS-PRIVATE <---
-    private static Map<String, Integer> mapMunicipios;
-    
-    private static int retrieveCodigoMunicipio(String municipio) throws IOException
-    {
-        mapMunicipios = (mapMunicipios == null) ? getMapMunicipios() : mapMunicipios;
-        
-        // Valor por defecto para mapMunicipios internacionales.
-        int codigoMunicipio = mapMunicipios.getOrDefault(municipio, 0);
-        
-        return codigoMunicipio;
-    }
-    
-    
-    private static Map<String, Integer> getMapMunicipios() throws IOException
+    static Map<String, Integer> retrieveMapMunicipios() throws IOException
     {
         Map<String, Integer> mapMunicipios = new HashMap();
         String municipiosCsvPath = Util.getCsvPaths().getMunicipios();
@@ -140,4 +126,7 @@ public class CsvManager
         
         return mapMunicipios;
     }
+    
+    // ---> ACCESS MODIFIER: CLASS-PRIVATE <---
+    
 }
