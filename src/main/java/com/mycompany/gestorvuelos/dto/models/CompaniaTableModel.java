@@ -28,6 +28,35 @@ public class CompaniaTableModel extends AbstractTableModel
             columnNames = new String[] {columnNames[0], columnNames[2]};
         }
     }
+    
+    /**
+     * Devuelve la compañía correspondiente a la posición en la tabla especificada.
+     * @param rowIndex Índice de la compañía a recuperar.
+     * @return Compañía correspondiente.
+     * @throws IndexOutOfBoundsException Si la compañía solicitada no existe en la tabla.
+     * Esto suele ocurrir cuando hemos seleccionado una compañía del listado y
+     * realizamos un filtro posterior.
+     * @see Compania
+     */
+    public Compania getCompaniaAt(int rowIndex) throws IndexOutOfBoundsException
+    {
+        return listCompania.get(rowIndex);
+    }
+    
+    /**
+     * Elimina la compañía especificada del modelo de la tabla y de la lista de
+     * compañías vinculada desde Util.
+     * @param compania Compañía a eliminar.
+     * @throws IndexOutOfBoundsException Si la compañía no está presente en el modelo.
+     * @see com.mycompany.gestorvuelos.negocio.logica.Util#getListCompania()
+     */
+    public void removeCompania(Compania compania) throws IndexOutOfBoundsException
+    {
+        int index = listCompania.indexOf(compania);
+        
+        listCompania.remove(index);
+        fireTableRowsDeleted(index, index);
+    }
 
     @Override
     public int getRowCount()
@@ -93,19 +122,5 @@ public class CompaniaTableModel extends AbstractTableModel
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return false;
-    }
-    
-    /**
-     * Devuelve la compañía correspondiente a la posición en la tabla especificada.
-     * @param rowIndex Índice de la compañía a recuperar.
-     * @return Compañía correspondiente.
-     * @throws IndexOutOfBoundsException Si la compañía solicitada no existe en la tabla.
-     * Esto suele ocurrir cuando hemos seleccionado una compañía del listado y
-     * realizamos un filtro posterior.
-     * @see Compania
-     */
-    public Compania getCompaniaAt(int rowIndex) throws IndexOutOfBoundsException
-    {
-        return listCompania.get(rowIndex);
     }
 }
