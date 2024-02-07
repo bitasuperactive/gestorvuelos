@@ -2,6 +2,7 @@ package com.mycompany.gestorvuelos.igu;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
+import com.mycompany.gestorvuelos.igu.logica.CompaniaListSelectionListener;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.negocio.logica.ListManager;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -29,7 +31,6 @@ import javax.swing.plaf.basic.BasicListUI;
  */
 public class MainFrame extends javax.swing.JFrame
 {
-
     /**
      * Creates new form MainFrame
      */
@@ -38,27 +39,32 @@ public class MainFrame extends javax.swing.JFrame
         initUtils();
         initComponents();
         
-        tCompaniaResults.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e)
-            {
-                if (!e.getValueIsAdjusting())
-                {
-                    CompaniaTableModel model = (CompaniaTableModel) tCompaniaResults.getModel();
-                    Compania compania = new Compania();
-                    try {
-                        compania = model.getCompaniaAt(tCompaniaResults.getSelectedRow());
-                    } catch (IndexOutOfBoundsException ex) {
-                        // No es necesario manejar esta excepción.
-                    }
-                    fillCompaniaDetails(compania);
-                }
-            }
-        });
+        tCompaniaResults.getSelectionModel().addListSelectionListener(new CompaniaListSelectionListener(this));
     }
     
-    private void fillCompaniaDetails(Compania compania)
+    private void initUtils()
     {
+        try {
+            // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
+            Util.initUtils("ABC");
+        } catch (IOException | IllegalArgumentException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            this.dispose();
+            System.exit(1);
+        }
+    }
+    
+    /**
+     * Guarda la compañía especificada para su modificación o baja, 
+     * rellena los campos correspondientes a sus detalles
+     * y, solo si esta no es nula, habilita los botones correspondientes.
+     * @param compania Compañía a detallar
+     */
+    public void fillCompaniaDetails(Compania compania)
+    {
+        setEnabledCompaniaDetailsButtons(compania != null);
+        compania = (compania == null) ? new Compania() : compania;
+        
         ftfPrefijo.setText(String.valueOf(compania.getPrefijo()));
         tfCodigo.setText(String.valueOf(compania.getCodigo()));
         tfNombre.setText(compania.getNombre());
@@ -69,19 +75,106 @@ public class MainFrame extends javax.swing.JFrame
         } else {
             cbMunicipioSedeCentral.setSelectedIndex(-1);
         }
-
+        
         ftfTelefonoATC.setText(String.valueOf(compania.getTelefonoATC()));
         ftfTelefonoATA.setText(String.valueOf(compania.getTelefonoATA()));
     }
     
-    private void initUtils()
+    /**
+     * Establece el valor habilitado de los botones correpondientes al panel
+     * CompaniaDetails.
+     * @param enabled Des/Habilitados.
+     */
+    private void setEnabledCompaniaDetailsButtons(boolean enabled)
     {
+        bSaveChangesCompania.setEnabled(enabled);
+        bShutdownCompania.setEnabled(enabled);
+    }
+    
+    /**
+     * Guarda los cámbios realizados sobre la compañía seleccionada.
+     */
+    // TODO - Implementar validación del formulario.
+    private void saveChangesToCompania()
+    {
+        // Obtener compañía seleccionada.
+        var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
+        Compania workingCompania;
         try {
-            // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
-            Util.initUtils("ABC");
-        } catch (IOException | IllegalArgumentException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            workingCompania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
+        } catch (IndexOutOfBoundsException ex) {
+            // En caso de no haber una compañía seleccionada, retornar.
+            return;
         }
+
+        //workingCompania.setPrefijo(Integer.parseInt(ftfPrefijo.getText()));
+        //workingCompania.setCodigo(tfCodigo.getText());
+        //workingCompania.setNombre(tfNombre.getText());
+        workingCompania.setDireccionSedeCentral(tfDireccionSedeCentral.getText());
+
+        Object municipio = cbMunicipioSedeCentral.getSelectedItem();
+        workingCompania.setMunicipioSedeCentral(municipio == null ? "" : municipio.toString());
+
+        // Validar los campos antes de continuar.
+        try {
+            ftfTelefonoATC.commitEdit();
+            ftfTelefonoATA.commitEdit();
+        } catch (ParseException parseException) {
+            // Esta excepción es inalcanzable.
+        }
+        
+        workingCompania.setTelefonoATC(Integer.parseInt(ftfTelefonoATC.getText()));
+        workingCompania.setTelefonoATA(Integer.parseInt(ftfTelefonoATA.getText()));
+        
+        JOptionPane.showMessageDialog(this,
+                "Compañía " + workingCompania.getNombre() + " modificada con éxito.",
+                this.getName(), JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
+     * Elimina al compañía seleccionada del listado de compañías.
+     * @see CompaniaTableModel#removeCompania(com.mycompany.gestorvuelos.dto.Compania)
+     */
+    private void shutdownCompania()
+    {
+        // Obtener compañía seleccionada.
+        var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
+        Compania compania;
+        try {
+            compania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
+        } catch (IndexOutOfBoundsException ex) {
+            // En caso de no haber una compañía seleccionada, retornar.
+            return;
+        }
+        
+        String nombreCompania = compania.getNombre();
+        var model = (CompaniaTableModel) tCompaniaResults.getModel();
+        
+        try {
+            model.removeCompania(compania);
+        } catch (IndexOutOfBoundsException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "No ha sido posible cursar la baja de " + nombreCompania + ".",
+                    this.getName(), JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Vaciar los detalles de la compañía.
+        fillCompaniaDetails(null);
+
+        JOptionPane.showMessageDialog(this,
+                "Compañía " + nombreCompania + " dada de baja con éxito.",
+                this.getName(), JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    // ---> GETTERS&SETTERS <---
+    /**
+     * Obtiene el JTable que lista el registro de compañías.
+     * @return JTable de compañías
+     */
+    public JTable getTableCompaniaResults()
+    {
+        return tCompaniaResults;
     }
 
     /**
@@ -169,7 +262,6 @@ public class MainFrame extends javax.swing.JFrame
         ftfPrefijo.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         ftfPrefijo.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         ftfPrefijo.setEnabled(false);
-        ftfPrefijo.setPreferredSize(new java.awt.Dimension(64, 22));
         pPrefijo.add(ftfPrefijo);
 
         pData.add(pPrefijo);
@@ -228,6 +320,7 @@ public class MainFrame extends javax.swing.JFrame
         jLabel6.setText("Teléfono ATC:");
         pTelefonoATC.add(jLabel6);
 
+        ftfTelefonoATC.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         ftfTelefonoATC.setPreferredSize(new java.awt.Dimension(85, 22));
         pTelefonoATC.add(ftfTelefonoATC);
 
@@ -252,15 +345,29 @@ public class MainFrame extends javax.swing.JFrame
         bShutdownCompania.setText("Dar de baja");
         bShutdownCompania.setBorder(bSaveChangesCompania.getBorder());
         bShutdownCompania.setEnabled(false);
+        bShutdownCompania.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                bShutdownCompaniaActionPerformed(evt);
+            }
+        });
         pActions.add(bShutdownCompania, java.awt.BorderLayout.LINE_START);
 
         bSaveChangesCompania.setText("Guardar cambios");
         bSaveChangesCompania.setEnabled(false);
+        bSaveChangesCompania.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                bSaveChangesCompaniaActionPerformed(evt);
+            }
+        });
         pActions.add(bSaveChangesCompania, java.awt.BorderLayout.LINE_END);
 
         pCompaniaDetails.add(pActions, java.awt.BorderLayout.PAGE_END);
 
-        fillCompaniaDetails(new Compania());
+        fillCompaniaDetails(null);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -287,6 +394,16 @@ public class MainFrame extends javax.swing.JFrame
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bShutdownCompaniaActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_bShutdownCompaniaActionPerformed
+    {//GEN-HEADEREND:event_bShutdownCompaniaActionPerformed
+        shutdownCompania();
+    }//GEN-LAST:event_bShutdownCompaniaActionPerformed
+
+    private void bSaveChangesCompaniaActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_bSaveChangesCompaniaActionPerformed
+    {//GEN-HEADEREND:event_bSaveChangesCompaniaActionPerformed
+        saveChangesToCompania();
+    }//GEN-LAST:event_bSaveChangesCompaniaActionPerformed
 
     /**
      * @param args the command line arguments
