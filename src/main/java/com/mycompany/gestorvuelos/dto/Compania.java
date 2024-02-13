@@ -152,6 +152,20 @@ public class Compania
     {
         return Objects.hash(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
     }
+    
+    /**
+     * Sobrescribe todos los campos de la compañía.
+     * @param newCompania Compañía a implementar.
+     */
+    public void override(Compania newCompania) {
+        this.prefijo = newCompania.prefijo;
+        this.codigo = newCompania.codigo;
+        this.nombre = newCompania.nombre;
+        this.direccionSedeCentral = newCompania.direccionSedeCentral;
+        this.municipioSedeCentral = newCompania.municipioSedeCentral;
+        this.telefonoATA = newCompania.telefonoATA;
+        this.telefonoATC = newCompania.telefonoATC;
+    }
 
     public short getPrefijo()
     {
