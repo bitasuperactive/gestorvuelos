@@ -3,8 +3,6 @@ package com.mycompany.gestorvuelos.negocio.logica;
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -13,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Compendio de funciones relativas al guardado, recuperación y actualización de archivos (.csv).
@@ -80,14 +77,14 @@ public class CsvManager
             String[] companiaData = row.split(";");
 
             // Must-have values.
-            int prefijo = Integer.parseInt(companiaData[0].trim());
+            short prefijo = Short.parseShort(companiaData[0].trim());
             String codigo = companiaData[1].trim();
             String nombre = companiaData[2].trim();
             // Optional values.
             String direccionSedeCentral = "not-registered";
             String municipioSedeCentral = "";
-            int telefonoATC = 0;
-            int telefonoATA = 0;
+            String telefonoATC = "";
+            String telefonoATA = "";
             if (companiaData.length > 3) // TODO - Mejorar la recuperación de los datos de las compaías.
             {
                 if (companiaData.length < 7)
@@ -95,11 +92,11 @@ public class CsvManager
                 
                 direccionSedeCentral = companiaData[3].trim();
                 municipioSedeCentral = companiaData[4].trim();
-                telefonoATC = Integer.parseInt(companiaData[5].trim());
-                telefonoATA = Integer.parseInt(companiaData[6].trim());
+                telefonoATC = companiaData[5].trim();
+                telefonoATA = companiaData[6].trim();
             }
             
-            Compania compania = new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATC, telefonoATA);
+            Compania compania = new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
             listCompania.add(compania);
         }
 
