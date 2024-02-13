@@ -141,6 +141,14 @@ public class MainFrame extends javax.swing.JFrame
         // Generamos una nueva compañía a partir de los datos modificados.
         Compania newCompania = getCompaniaFromFields();
         
+        // Comprobamos si han habido cambios.
+        if (selectedCompania.equals(newCompania))
+        {
+            JOptionPane.showMessageDialog(this, "No han habido cambios.",
+                    this.getName(), JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
         // Validamos la nueva compañía.
         Set<ConstraintViolation<Compania>> violations = validator.validate(newCompania);
         if (!violations.isEmpty())
