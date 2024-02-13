@@ -5,7 +5,7 @@ import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaListSelectionListener;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
-import com.mycompany.gestorvuelos.negocio.logica.DtoManager;
+import com.mycompany.gestorvuelos.igu.logica.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.negocio.logica.ListManager;
 import com.mycompany.gestorvuelos.negocio.logica.Util;
 import jakarta.validation.ConstraintViolation;
@@ -30,6 +30,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicListUI;
+import javax.swing.text.AbstractDocument;
 
 /**
  * Formulario principal de la aplicación.
@@ -166,7 +167,7 @@ public class MainFrame extends javax.swing.JFrame
         }
         
         // Guardamos los datos validados en la compañía seleccionada.
-        DtoManager.overrideCompania(selectedCompania, newCompania);
+        selectedCompania.override(newCompania);
         
         String message = String.format("Compañía [ %s ] modificada con éxito.", 
                 selectedCompania.getNombre());
@@ -309,6 +310,8 @@ public class MainFrame extends javax.swing.JFrame
         tfPrefijo.setMinimumSize(new java.awt.Dimension(34, 22));
         tfPrefijo.setPreferredSize(new java.awt.Dimension(34, 22));
         tfPrefijo.setEditable(false);
+        ((AbstractDocument) tfPrefijo.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "prefijo"));
         pCriticalData.add(tfPrefijo);
 
         lCodigo.setText("Código:");
@@ -321,6 +324,8 @@ public class MainFrame extends javax.swing.JFrame
         tfCodigo.setMinimumSize(new java.awt.Dimension(38, 22));
         tfCodigo.setPreferredSize(new java.awt.Dimension(38, 22));
         tfCodigo.setEditable(false);
+        ((AbstractDocument) tfCodigo.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "codigo"));
         pCriticalData.add(tfCodigo);
 
         lNombre.setText("Nombre:");
@@ -332,6 +337,8 @@ public class MainFrame extends javax.swing.JFrame
         tfNombre.setMinimumSize(new java.awt.Dimension(272, 26));
         tfNombre.setPreferredSize(new java.awt.Dimension(272, 26));
         tfNombre.setEditable(false);
+        ((AbstractDocument) tfNombre.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "nombre"));
         pCriticalData.add(tfNombre);
 
         pData.add(pCriticalData);
@@ -344,6 +351,8 @@ public class MainFrame extends javax.swing.JFrame
         tfDireccionSedeCentral.setText("CALLE MARIA DE MOLINA, 54 , 2ª PLANTA. 28006, MADRID, MADRID");
         tfDireccionSedeCentral.setMinimumSize(new java.awt.Dimension(392, 26));
         tfDireccionSedeCentral.setPreferredSize(new java.awt.Dimension(392, 26));
+        ((AbstractDocument) tfDireccionSedeCentral.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "direccionSedeCentral"));
         pDireccionSedeCentral.add(tfDireccionSedeCentral);
 
         pData.add(pDireccionSedeCentral);
@@ -369,6 +378,8 @@ public class MainFrame extends javax.swing.JFrame
         tfTelefonoATA.setText("+001 404555017077");
         tfTelefonoATA.setMinimumSize(new java.awt.Dimension(130, 22));
         tfTelefonoATA.setPreferredSize(new java.awt.Dimension(130, 22));
+        ((AbstractDocument) tfTelefonoATA.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "telefonoATA"));
         pTelefonoATC.add(tfTelefonoATA);
 
         lTelefonoATC.setText("Teléfono ATC:");
@@ -378,6 +389,8 @@ public class MainFrame extends javax.swing.JFrame
         tfTelefonoATC.setText("+001 404555017066");
         tfTelefonoATC.setMinimumSize(new java.awt.Dimension(130, 22));
         tfTelefonoATC.setPreferredSize(new java.awt.Dimension(130, 22));
+        ((AbstractDocument) tfTelefonoATC.getDocument()).setDocumentFilter(
+            new MaxCharsDocumentFilter(this, Compania.class, "telefonoATC"));
         pTelefonoATC.add(tfTelefonoATC);
 
         pData.add(pTelefonoATC);

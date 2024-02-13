@@ -230,6 +230,7 @@
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tfPrefijo.setEditable(false);"/>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfPrefijo.getDocument()).setDocumentFilter(&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;prefijo&quot;));"/>
                   </AuxValues>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lCodigo">
@@ -256,6 +257,7 @@
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tfCodigo.setEditable(false);"/>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfCodigo.getDocument()).setDocumentFilter(&#xd;&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;codigo&quot;));"/>
                   </AuxValues>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lNombre">
@@ -281,6 +283,7 @@
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tfNombre.setEditable(false);"/>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfNombre.getDocument()).setDocumentFilter(&#xd;&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;nombre&quot;));"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -307,6 +310,9 @@
                       <Dimension value="[392, 26]"/>
                     </Property>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfDireccionSedeCentral.getDocument()).setDocumentFilter(&#xd;&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;direccionSedeCentral&quot;));"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -360,6 +366,9 @@
                       <Dimension value="[130, 22]"/>
                     </Property>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfTelefonoATA.getDocument()).setDocumentFilter(&#xd;&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;telefonoATA&quot;));"/>
+                  </AuxValues>
                 </Component>
                 <Component class="javax.swing.JLabel" name="lTelefonoATC">
                   <Properties>
@@ -377,6 +386,9 @@
                       <Dimension value="[130, 22]"/>
                     </Property>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="((AbstractDocument) tfTelefonoATC.getDocument()).setDocumentFilter(&#xd;&#xa;                new MaxCharsDocumentFilter(this, Compania.class, &quot;telefonoATC&quot;));"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
