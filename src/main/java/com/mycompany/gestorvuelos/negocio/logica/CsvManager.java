@@ -81,7 +81,7 @@ public class CsvManager
             String codigo = companiaData[1].trim();
             String nombre = companiaData[2].trim();
             // Optional values.
-            String direccionSedeCentral = "not-registered";
+            String direccionSedeCentral = "";
             String municipioSedeCentral = "";
             String telefonoATC = "";
             String telefonoATA = "";
