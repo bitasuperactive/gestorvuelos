@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.Objects;
 
 /**
  * Almacena todos los datos referentes a la compañia aerea con sus
@@ -125,6 +126,31 @@ public class Compania
         this.municipioSedeCentral = municipioSedeCentral;
         this.telefonoATA = telefonoATA;
         this.telefonoATC = telefonoATC;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+        Compania companiaToCompare = (Compania) obj;
+        return prefijo == companiaToCompare.prefijo &&
+               Objects.equals(codigo, companiaToCompare.codigo) &&
+               Objects.equals(nombre, companiaToCompare.nombre) &&
+               Objects.equals(direccionSedeCentral, companiaToCompare.direccionSedeCentral) &&
+               Objects.equals(municipioSedeCentral, companiaToCompare.municipioSedeCentral) &&
+               Objects.equals(telefonoATA, companiaToCompare.telefonoATA) &&
+               Objects.equals(telefonoATC, companiaToCompare.telefonoATC);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
     }
 
     public short getPrefijo()
