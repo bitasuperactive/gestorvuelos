@@ -282,6 +282,13 @@ public class MainFrame extends javax.swing.JFrame
 
         cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum.valuesToString()));
         cbCompaniaSearchType.setSelectedItem(CompaniaSearchTypeEnum.NOMBRE.toString());
+        cbCompaniaSearchType.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                cbCompaniaSearchTypeActionPerformed(evt);
+            }
+        });
         pBuscador.add(cbCompaniaSearchType, java.awt.BorderLayout.LINE_START);
 
         tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
@@ -479,6 +486,11 @@ public class MainFrame extends javax.swing.JFrame
     {//GEN-HEADEREND:event_bSaveChangesCompaniaActionPerformed
         saveChangesToCompania();
     }//GEN-LAST:event_bSaveChangesCompaniaActionPerformed
+
+    private void cbCompaniaSearchTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cbCompaniaSearchTypeActionPerformed
+    {//GEN-HEADEREND:event_cbCompaniaSearchTypeActionPerformed
+        tfCompaniaSearcher.setText("");
+    }//GEN-LAST:event_cbCompaniaSearchTypeActionPerformed
 
     /**
      * @param args the command line arguments
