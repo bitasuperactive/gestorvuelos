@@ -3,6 +3,7 @@ package com.mycompany.gestorvuelos.negocio.logica;
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -13,25 +14,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Compendio de funciones relativas al guardado, recuperación y actualización de archivos (.csv).
- * @author PVita
+ * Compendio de funciones relativas al guardado, recuperación y actualización de archivos CSV.
  */
 public class CsvManager
 {
-    // ---> ACCESS MODIFIER: PACKAGE-PRIVATE <---
     /**
      * Crea la lista de aeropuertos disponibles.
      * <br><br>
      * <b>Limitaciones:</b> <br> 
-     * <pre>     No se valida el contenido del archivo (.csv).</pre>
+     * <pre>     No se valida el contenido del CSV.</pre>
+     * @throws java.io.IOException Si el archivo CSV es inaccesible (no debería 
+     * producirse tras las validaciones realizadas en PropertiesManager).
      * @return Lista de aeropuertos.
-     * @throws java.io.IOException Si el archivo (.csv) es inaccesible.
+     * @see Aeropuerto
      */
-    static List<Aeropuerto> retrieveListAeropuerto() throws IOException
+    protected static List<Aeropuerto> retrieveListAeropuerto() throws IOException
     {
         ArrayList<Aeropuerto> listAeropuerto = new ArrayList();
         
-        String aeropuertosCsvPath = Util.getCsvPaths().getAeropuertos();
+        File aeropuertosCsvPath = Util.getCsvPaths().getAeropuertos();
         
         // Codificación UTF-8 con BOM.
         BufferedReader reader = new BufferedReader(new FileReader(aeropuertosCsvPath, StandardCharsets.UTF_8));
@@ -53,19 +54,22 @@ public class CsvManager
 
         return listAeropuerto;
     }
+    
     /**
      * Crea la lista de compañias disponibles.
      * <br><br>
      * <b>Limitaciones:</b> <br> 
-     * <pre>     No se valida el contenido del archivo (.csv).</pre>
+     * <pre>     No se valida el contenido del CSV.</pre>
      * @return Lista de compañias.
-     * @throws java.io.IOException Si el archivo (.csv) es inaccesible.
+     * @throws java.io.IOException Si el archivo CSV es inaccesible (no debería 
+     * producirse tras las validaciones realizadas en PropertiesManager).
+     * @see Compania
      */
-    static List<Compania> retrieveListCompania() throws IOException
+    protected static List<Compania> retrieveListCompania() throws IOException
     {
         ArrayList<Compania> listCompania = new ArrayList();
         
-        String companiasCsvPath = Util.getCsvPaths().getCompanias();
+        File companiasCsvPath = Util.getCsvPaths().getCompanias();
         
         // Codificación UTF-8 con BOM.
         BufferedReader reader = new BufferedReader(new FileReader(companiasCsvPath, StandardCharsets.UTF_8));
@@ -103,10 +107,21 @@ public class CsvManager
         return listCompania;
     }
     
-    static Map<String, Integer> retrieveMapMunicipios() throws IOException
+    /**
+     * Crea un mapa de municipios. 
+     * <br> Clave: Nombre del municipio.
+     * <br> Valor: Código identificativo del municipio.
+     * <br><br>
+     * <b>Limitaciones:</b> <br> 
+     * <pre>     No se valida el contenido del CSV.</pre>
+     * @return Map<Municipio, Código>
+     * @throws java.io.IOException Si el archivo CSV es inaccesible (no debería 
+     * producirse tras las validaciones realizadas en PropertiesManager).
+     */
+    protected static Map<String, Integer> retrieveMapMunicipios() throws IOException
     {
         Map<String, Integer> mapMunicipios = new HashMap();
-        String municipiosCsvPath = Util.getCsvPaths().getMunicipios();
+        File municipiosCsvPath = Util.getCsvPaths().getMunicipios();
         
         // Codificación ANSI.
         BufferedReader reader = new BufferedReader(new FileReader(municipiosCsvPath, Charset.forName("Cp1252")));
@@ -123,7 +138,4 @@ public class CsvManager
         
         return mapMunicipios;
     }
-    
-    // ---> ACCESS MODIFIER: CLASS-PRIVATE <---
-    
 }
