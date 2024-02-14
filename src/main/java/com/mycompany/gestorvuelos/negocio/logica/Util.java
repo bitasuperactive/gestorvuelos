@@ -27,11 +27,12 @@ public class Util
      */
     public static void initUtils(@NotEmpty String aeropuertoBaseCodigoIATA) throws IllegalArgumentException, IOException, NoSuchElementException
     {
-        csvPaths = PropertiesManager.getCsvPaths();
+        csvPaths = PropertiesManager.getCsvFiles();
         mapMunicipios = CsvManager.retrieveMapMunicipios();
         listAeropuertos = CsvManager.retrieveListAeropuerto();
         listCompania = CsvManager.retrieveListCompania();
         aeropuertoGestion = ListManager.getAeropuertoByCodigoIATA(aeropuertoBaseCodigoIATA);
+        initialized = true;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Getters">
@@ -58,6 +59,11 @@ public class Util
     public static Map<String, Integer> getMapMunicipios()
     {
         return (Map<String, Integer>) getObject(mapMunicipios);
+    }
+
+    public static boolean isInitialized()
+    {
+        return initialized;
     }
     
     /**
@@ -95,6 +101,7 @@ public class Util
     // </editor-fold> 
     
     // <editor-fold defaultstate="expanded" desc="Class-private">
+    private static boolean initialized;
     /**
      * Objeto que almacena las rutas a los archivos csv.
      */
