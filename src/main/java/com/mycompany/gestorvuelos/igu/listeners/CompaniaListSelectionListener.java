@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.logica;
+package com.mycompany.gestorvuelos.igu.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
@@ -32,14 +32,17 @@ public class CompaniaListSelectionListener implements ListSelectionListener
         if (e.getValueIsAdjusting()) {
             return;
         }
+        
         JTable tCompaniaResults = frame.getTableCompaniaResults();
         var model = (CompaniaTableModel) tCompaniaResults.getModel();
-        Compania compania = null;
+        Compania compania;
+        
         try {
             compania = model.getCompaniaAt(tCompaniaResults.getSelectedRow());
         } catch (IndexOutOfBoundsException ex) {
-            // En caso de excepción, la compañía a rellenar será nula.
+            compania = null;
         }
+        
         frame.fillCompaniaDetails(compania);
     }
 
