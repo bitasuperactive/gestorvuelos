@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Objects;
+import com.mycompany.gestorvuelos.igu.validation.Unique;
 
 /**
  * Almacena todos los datos referentes a la compañia aerea con sus
@@ -20,12 +21,14 @@ public class Compania
      * <pre>Restricciones:
      *      - Obligatorio.
      *      - Comprendido entre 1 y 999.
+     *      - Único.
      * </pre>
      */
-    @NotNull(message = "El prefijo es un campo obligatorio.")
+    @NotNull(message = "Campo obligatorio.")
     @Digits(integer = 3, fraction = 0)
-    @Min(value = 1, message = "El prefijo debe ser positivo mayor a 0.")
-    @Max(value = 999, message = "El prefijo no puede ser mayor a 999.")
+    @Min(value = 1, message = "Debe ser positivo mayor a 0.")
+    @Max(value = 999, message = "No puede ser mayor a 999.")
+    @Unique
     private Short prefijo;
     
     /**
@@ -33,13 +36,15 @@ public class Compania
      * <pre>Restricciones:
      *      - Obligatorio.
      *      - Debe ser una cadena de dos caracteres mayúsculas de tamaño fijo, puede contener dos letras mayúsculas o una mayúscula y un número (en este orden).
+     *      - Único.
      * </pre>
      */
-    @NotBlank(message = "El código es un campo obligatorio")
+    @NotBlank(message = "Campo obligatorio")
     @Pattern(regexp = "^([A-Z]{2}|[A-Z][0-9])$",
-            message = "El código debe ser una cadena de dos caracteres de tamaño fijo, "
-                    + "puede contener dos letras mayúsculas o una mayúscula y un número (en este orden)")
+            message = "Debe ser una cadena de dos caracteres en mayúsculas o"
+                    + " un caracter en mayúscula y un número.")
     @Size(max = 2)
+    @Unique
     private String codigo;
     
     /**
@@ -49,8 +54,8 @@ public class Compania
      *      - Máximo 40 caracteres.
      * </pre>
      */
-    @NotBlank(message = "El nombre es un campo obligatorio")
-    @Size(max = 40, message = "El nombre está limitado a 40 caracteres.")
+    @NotBlank(message = "Campo obligatorio")
+    @Size(max = 40, message = "Limitado a 40 caracteres.")
     private String nombre;
     
     /**
@@ -59,10 +64,9 @@ public class Compania
      *      - Máximo 60 caracteres.
      * </pre>
      */
-    @Size(max = 60, message = "La dirección está limitada a 60 caracteres.")
+    @Size(max = 60, message = "Limitada a 60 caracteres.")
     private String direccionSedeCentral;
     
-    // TODO - Implementar restricción personalizada: Debe estar contemplado en el archivo CSV de municipios.
     /**
      * Municipio de la sede central de la compañía.
      */
@@ -77,7 +81,8 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$", 
-            message = "TelefonoATA debe ser un número interncional siguiendo la estructura: +000 1020304")
+            message = "Debe ser un número internacional siguiendo la estructura: "
+                    + "+000 1020304...")
     @Size(max = 17)
     private String telefonoATA;
     
@@ -88,7 +93,8 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$",
-            message = "TelefonoATC debe ser un número interncional siguiendo la estructura: +000 1020304")
+            message = "Debe ser un número interncional siguiendo la estructura: "
+                    + "+000 1020304...")
     @Size(max = 17)
     private String telefonoATC;
     
