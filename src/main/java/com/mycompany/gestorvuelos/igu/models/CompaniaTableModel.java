@@ -48,7 +48,7 @@ public class CompaniaTableModel extends AbstractTableModel
      * compañías vinculada desde Util.
      * @param compania Compañía a eliminar.
      * @throws IndexOutOfBoundsException Si la compañía no está presente en el modelo.
-     * @see com.mycompany.gestorvuelos.negocio.logica.Util#getListCompania()
+     * @see com.mycompany.gestorvuelos.negocio.logica.Util#listCompania
      */
     public void removeCompania(Compania compania) throws IndexOutOfBoundsException
     {
@@ -56,6 +56,22 @@ public class CompaniaTableModel extends AbstractTableModel
         
         listCompania.remove(index);
         fireTableRowsDeleted(index, index);
+    }
+    
+    /**
+     * Agrega la compañía especificada al modelo y a la lista de
+     * compañías vinculada desde Util.
+     * @param compania Compañía a agregar.
+     * @throws IllegalArgumentException Si la compañía es nula.
+     * @see com.mycompany.gestorvuelos.negocio.logica.Util#listCompania
+     */
+    public void addCompania(Compania compania) throws IllegalArgumentException
+    {
+        if (compania == null) {
+            throw new IllegalArgumentException("La compañía a agregar al modelo es nula.");
+        }
+        
+        listCompania.add(compania);
     }
 
     @Override
