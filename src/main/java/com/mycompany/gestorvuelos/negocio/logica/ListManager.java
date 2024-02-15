@@ -49,11 +49,35 @@ public class ListManager
      * @return Lista de compañías que contienen el prefijo filtro.
      * @see numInNum
      */
-    public static List<Compania> getListCompaniaByPrefijo(int prefijo)
+    public static List<Compania> getListCompaniaByPrefijo(short prefijo)
     {
         return  Util.getListCompania().stream()
                 .filter(c -> numInNum(c.getPrefijo(), prefijo))
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Comprueba si el prefijo especificado pertenece a alguna compañía existente.
+     * En su defecto, el valor es válido como identificador único de la compañía.
+     * @param prefijo Prefijo a validar.
+     * @return Verdadero si es único, falso en su defecto.
+     */
+    public static boolean isCompaniaPrefijoUnique(short prefijo)
+    {
+        return !Util.getListCompania().stream()
+                .anyMatch(c -> c.getPrefijo() == prefijo);
+    }
+    
+    /**
+     * Comprueba si el código especificado pertenece a alguna compañía existente.
+     * En su defecto, el valor es válido como identificador único de la compañía.
+     * @param codigo Código a validar.
+     * @return Verdadero si es único, falso en su defecto.
+     */
+    public static boolean isCompaniaCodigoUnique(String codigo)
+    {
+        return !Util.getListCompania().stream()
+                .anyMatch(c -> c.getCodigo().equals(codigo));
     }
     
     /**
