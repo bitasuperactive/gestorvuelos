@@ -307,7 +307,7 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbMunicipioSedeCentral">
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);&#xa;cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel&lt;&gt;(municipioSedeCentralItems));"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);&#xa;cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel&lt;&gt;(municipioSedeCentralItems));&#xa;cbMunicipioSedeCentral.setSelectedItem(null);"/>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
               </AuxValues>
             </Component>

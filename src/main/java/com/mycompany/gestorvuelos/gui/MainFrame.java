@@ -89,11 +89,13 @@ public class MainFrame extends javax.swing.JFrame
      */
     private Compania getCompaniaFromFields()
     {
-        Short prefijo = null;
+        Short prefijo;
         try {
             prefijo = Short.valueOf(tfPrefijo.getText());
         } catch (NumberFormatException ex) {
+            prefijo = null;
         }
+        
         String codigo = tfCodigo.getText();
         String nombre = tfNombre.getText();
         String direccionSedeCentral = tfDireccionSedeCentral.getText();
@@ -106,23 +108,38 @@ public class MainFrame extends javax.swing.JFrame
         
         return new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
     }
-    
+
     /**
-     * Guarda los cámbios realizados sobre la compañía seleccionada.
+     * Recupera la compañía seleccionada de la tabla de compañías disponibles.
+     * @return Compañía seleccionada.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
      */
-    // TODO - Implementar validación del formulario.
-    private void saveChangesToCompania() throws IllegalArgumentException
+    private Compania getSelectedCompania() throws NullPointerException
     {
-        // Obtener compañía seleccionada.
         var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
         Compania selectedCompania;
+        
         try {
             selectedCompania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
         } catch (IndexOutOfBoundsException ex) {
             // En caso de no haber una compañía seleccionada, 
             // los botones deberían estar deshabilitados.
-            throw new IllegalArgumentException("No se ha seleccionado ninguna compañía del listado.");
+            throw new NullPointerException("No se ha seleccionado ninguna compañía de la tabla.");
         }
+        
+        return selectedCompania;
+    }
+    
+    /**
+     * Guarda los cámbios realizados sobre la compañía seleccionada.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     * @see getSelectedCompania
+     * @see Compania#override(Compania)
+     */
+    private void saveChangesToCompania() throws NullPointerException
+    {
+        // Obtenemos compañía seleccionada.
+        Compania selectedCompania = getSelectedCompania();
         
         // Generamos una nueva compañía a partir de los datos modificados.
         Compania newCompania = getCompaniaFromFields();
@@ -130,7 +147,7 @@ public class MainFrame extends javax.swing.JFrame
         // Comprobamos si han habido cambios.
         if (selectedCompania.equals(newCompania))
         {
-            JOptionPane.showMessageDialog(this, "No han habido cambios.",
+            JOptionPane.showMessageDialog(this, "No se ha realizado ningún cambio.",
                     this.getName(), JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -162,20 +179,14 @@ public class MainFrame extends javax.swing.JFrame
     
     /**
      * Elimina al compañía seleccionada del listado de compañías.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     * @see getSelectedCompania
      * @see CompaniaTableModel#removeCompania(com.mycompany.gestorvuelos.dto.Compania)
      */
-    private void shutdownCompania()
+    private void shutdownCompania() throws NullPointerException
     {
-        // Obtener compañía seleccionada.
-        var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
-        Compania compania;
-        try {
-            compania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
-        } catch (IndexOutOfBoundsException ex) {
-            // En caso de no haber una compañía seleccionada, 
-            // los botones deberían estar deshabilitados.
-            throw new IllegalArgumentException("No se ha seleccionado ninguna compañía del listado.");
-        }
+        // Obtenemos compañía seleccionada.
+        Compania compania = getSelectedCompania();
         
         String nombreCompania = compania.getNombre();
         var model = (CompaniaTableModel) tCompaniaResults.getModel();
@@ -490,6 +501,9 @@ public class MainFrame extends javax.swing.JFrame
 
     private void bRegisterCompaniaActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_bRegisterCompaniaActionPerformed
     {//GEN-HEADEREND:event_bRegisterCompaniaActionPerformed
+        // Limpiar selección de la tabla.
+        tCompaniaResults.clearSelection();
+        
         RegisterNewCompaniaDialog registerNewCompaniaDialog = 
                 new RegisterNewCompaniaDialog(this, 
                         true, 

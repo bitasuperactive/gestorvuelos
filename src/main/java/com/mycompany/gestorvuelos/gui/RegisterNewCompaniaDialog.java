@@ -43,11 +43,11 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         setupDocumentListeners();
         triggerDocumentListeners();
     }
-
+    
     @Override
-    public JButton getSubmitButton()
+    public void checkIfFormularyIsValid()
     {
-        return bRegisterCompania;
+        bRegisterCompania.setEnabled(allFieldsAreValid());
     }
     
     /**
@@ -363,6 +363,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
 
         String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);
         cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<>(municipioSedeCentralItems));
+        cbMunicipioSedeCentral.setSelectedItem(null);
         pMunicipioSedeCentral.add(cbMunicipioSedeCentral);
 
         pData.add(pMunicipioSedeCentral);

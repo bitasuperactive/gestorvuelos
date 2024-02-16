@@ -1,16 +1,13 @@
 package com.mycompany.gestorvuelos.gui.interfaces;
 
-import javax.swing.JButton;
-
 /**
- * Los formularios que requieran ser validados deben implementar la 
- * recuperación del botón hace uso inmediato de sus campos.
+ * Los formularios que requieran ser validados deben implementar 
+ * un método que permita comprobar si existen violaciones de validación.
  */
 public interface ValidationFormulary
 {
     /**
-     * Recupera el botón que hace uso directo de los campos del formulario.
-     * @return Botón principal del formulario.
+     * Comprueba si existen violaciones de validación.
      */
-    public JButton getSubmitButton();
+    public void checkIfFormularyIsValid();
 }

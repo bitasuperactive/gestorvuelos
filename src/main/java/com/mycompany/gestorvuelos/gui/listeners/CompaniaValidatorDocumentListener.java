@@ -26,7 +26,7 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
 
     /**
      * Valida el atributo vinculado al documento al actualizar su contenido.
-     * @param parent Padre del componente que implimenta este listener.
+     * @param parent Padre del componente que implimenta la clase.
      * @param attrName Nombre del atributo vinculado al documento que contiene las etiquetas de validación.
      * @param violationLabel Etiqueta en la que se mostraran los mensajes de error
      * de validación del atributo.
@@ -144,12 +144,12 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
     private void manageSuccessValidation()
     {
         violationLabel.setText("");
-        parent.getSubmitButton().setEnabled(true);
+        parent.checkIfFormularyIsValid();
     }
     
     private void manageViolationMessage(String message)
     {
         violationLabel.setText(message);
-        parent.getSubmitButton().setEnabled(false);
+        parent.checkIfFormularyIsValid();
     }
 }
