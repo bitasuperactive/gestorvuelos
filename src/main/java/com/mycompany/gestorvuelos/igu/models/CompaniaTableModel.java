@@ -1,8 +1,10 @@
 package com.mycompany.gestorvuelos.igu.models;
 
 import com.mycompany.gestorvuelos.dto.Compania;
+import java.util.Comparator;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  * Modelo de tabla personalizado para mostrar los campos del objeto Compania.
@@ -21,9 +23,9 @@ public class CompaniaTableModel extends AbstractTableModel
      * Si es falso, crea un modelo completo.
      */
     public CompaniaTableModel(List<Compania> listCompania, boolean shorterModel)
-    {
+    {        
         this.listCompania = listCompania;
-        // La versión acortada de la tabla solo tiene las columnas "Prefijo" y "Nombre".
+        // La versión acortada de la tabla solo contiene las columnas "Prefijo" y "Nombre".
         if (this.shorterModel = shorterModel) {
             columnNames = new String[] {columnNames[0], columnNames[2]};
         }
@@ -59,7 +61,7 @@ public class CompaniaTableModel extends AbstractTableModel
     }
     
     /**
-     * Agrega la compañía especificada al modelo y a la lista de
+     * Agrega la compañía especificada al inicio del modelo y a la lista de
      * compañías vinculada desde Util.
      * @param compania Compañía a agregar.
      * @throws IllegalArgumentException Si la compañía es nula.
@@ -71,7 +73,8 @@ public class CompaniaTableModel extends AbstractTableModel
             throw new IllegalArgumentException("La compañía a agregar al modelo es nula.");
         }
         
-        listCompania.add(compania);
+        listCompania.add(0, compania);
+        fireTableRowsInserted(listCompania.size() - 1, listCompania.size() - 1);
     }
 
     @Override
