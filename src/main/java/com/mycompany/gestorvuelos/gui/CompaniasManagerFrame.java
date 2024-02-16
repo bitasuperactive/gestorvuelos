@@ -6,11 +6,9 @@ import com.mycompany.gestorvuelos.gui.listeners.CompaniaListSelectionListener;
 import com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.business.logic.Util;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
+import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
+import com.mycompany.gestorvuelos.gui.listeners.CompaniaValidatorDocumentListener;
 import java.io.IOException;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -19,44 +17,46 @@ import javax.swing.JTable;
 import javax.swing.text.AbstractDocument;
 
 /**
- * Formulario principal de la aplicación.
+ * Formulario de gestión de compañías aéreas.
  */
-public class MainFrame extends javax.swing.JFrame
+public class CompaniasManagerFrame extends javax.swing.JFrame implements ValidationFormulary
 {
-    private Validator validator;
-    
     /**
-     * Crea un nuevo formulario MainFrame.
+     * Crea un nuevo formulario CompaniasManagerFrame.
      */
-    public MainFrame()
+    public CompaniasManagerFrame()
     {
         initUtils();
         initComponents();
+        setupDocumentListeners();
     }
     
-    private void initUtils()
+    @Override
+    public void checkIfFormularyIsValid()
     {
+        // Habilitamos el botón guardar cambios si hay una compañía seleccionada
+        // y todos los campos son válidos.
         try {
-            // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
-            Util.initUtils("ABC");
-            validator = Validation.buildDefaultValidatorFactory().getValidator();
-        } catch (IOException | IllegalArgumentException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-            this.dispose();
-            System.exit(1);
+            getSelectedCompania();
+            bSaveChangesCompania.setEnabled(allFieldsAreValid());
+        } catch (NullPointerException ex) {
+            // No se ha seleccionado ninguna compañía.
         }
     }
     
     // TODO - Evitar modificador público.
     /**
-     * Guarda la compañía especificada para su modificación o baja, 
-     * rellena los campos correspondientes a sus detalles
-     * y, solo si esta no es nula, habilita los botones correspondientes.
-     * @param compania Compañía a detallar
+     * Rellena los campos correspondientes del panel pCompaniaDetails con
+     * los datos de la compañías especificada.
+     * @param compania Compañía a mostrar.
      */
     public void fillCompaniaDetails(Compania compania)
     {
-        setEnabledCompaniaDetailsButtons(compania != null);
+        // Habilitamos los botones del panel pCompaniaDetails si compania no es null.
+        bSaveChangesCompania.setEnabled(compania != null);
+        bShutdownCompania.setEnabled(compania != null);
+        
+        // Si compania es null utilizamos el constructor por defecto.
         compania = (compania == null) ? new Compania() : compania;
         
         tfPrefijo.setText(String.valueOf(compania.getPrefijo()));
@@ -72,23 +72,170 @@ public class MainFrame extends javax.swing.JFrame
     }
     
     /**
-     * Establece el valor Enabled de los botones correpondientes al panel
-     * pCompaniaDetails.
-     * @param enabled Des/Habilitados.
+     * Obtiene el JTable que lista el registro de compañías.
+     * @return JTable de compañías.
      */
-    private void setEnabledCompaniaDetailsButtons(boolean enabled)
+    public JTable getTableCompaniaResults()
     {
-        bSaveChangesCompania.setEnabled(enabled);
-        bShutdownCompania.setEnabled(enabled);
+        return tCompaniaResults;
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc="Constructor methods">
+    private void initUtils()
+    {
+        try {
+            // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
+            Util.initUtils("ABC");
+        } catch (IOException | IllegalArgumentException ex) {
+            Logger.getLogger(CompaniasManagerFrame.class.getName()).log(Level.SEVERE, 
+                    "Excepción de inicialización.", 
+                    ex);
+            this.dispose();
+            System.exit(1);
+        }
+    }
+    
+    /**
+     * Establece los listeners MaxCharsDocumentFilter y 
+     * CompaniaValidatorDocumentListener para los campos modificables del panel
+     * pCompaniaDetails.
+     * @see MaxCharsDocumentFilter
+     * @see CompaniaValidatorDocumentListener
+     */
+    private void setupDocumentListeners()
+    {
+        // Establecer límites de caracteres.
+        ((AbstractDocument) tfDireccionSedeCentral.getDocument()).setDocumentFilter(
+                new MaxCharsDocumentFilter(Compania.class, "direccionSedeCentral", lDireccionSedeCentralWarning));
+        ((AbstractDocument) tfTelefonoATA.getDocument()).setDocumentFilter(
+                new MaxCharsDocumentFilter(Compania.class, "telefonoATA", lTelefonoATAWarning));
+        ((AbstractDocument) tfTelefonoATC.getDocument()).setDocumentFilter(
+                new MaxCharsDocumentFilter(Compania.class, "telefonoATC", lTelefonoATCWarning));
+
+        // Establecer validadores.
+        tfDireccionSedeCentral.getDocument().addDocumentListener(new CompaniaValidatorDocumentListener(this, "direccionSedeCentral", lDireccionSedeCentralWarning));
+        tfTelefonoATA.getDocument().addDocumentListener(new CompaniaValidatorDocumentListener(this, "telefonoATA", lTelefonoATAWarning));
+        tfTelefonoATC.getDocument().addDocumentListener(new CompaniaValidatorDocumentListener(this, "telefonoATC", lTelefonoATCWarning));
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Button methods">
+    /**
+     * Guarda los cámbios realizados sobre la compañía seleccionada.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     * @see getSelectedCompania
+     * @see getCompaniaFromFields
+     * @see Compania#override(Compania)
+     */
+    private void saveChangesToCompania() throws NullPointerException
+    {
+        // Obtenemos la compañía seleccionada.
+        Compania selectedCompania = getSelectedCompania();
+        
+        // Generamos una nueva compañía validada a partir de los datos modificados.
+        Compania newCompania;
+        try {
+            newCompania = getCompaniaFromFields();
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, 
+                    ex.getMessage(), 
+                    this.getTitle(), 
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Comprobamos si han habido cambios.
+        if (selectedCompania.equals(newCompania))
+        {
+            JOptionPane.showMessageDialog(this, "No se ha realizado ningún cambio.",
+                    this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // Guardamos los datos validados en la compañía seleccionada.
+        selectedCompania.override(newCompania);
+        
+        String message = String.format("Compañía [ %s ] modificada con éxito.", 
+                selectedCompania.getNombre());
+        JOptionPane.showMessageDialog(this, message,
+                this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
+     * Elimina al compañía seleccionada del listado de compañías.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     * @see getSelectedCompania
+     * @see CompaniaTableModel#removeCompania(com.mycompany.gestorvuelos.dto.Compania)
+     */
+    private void shutdownCompania() throws NullPointerException
+    {
+        // Obtenemos compañía seleccionada.
+        Compania compania = getSelectedCompania();
+        
+        String nombreCompania = compania.getNombre();
+        
+        var model = (CompaniaTableModel) tCompaniaResults.getModel();
+        try {
+            model.removeCompania(compania);
+        } catch (IndexOutOfBoundsException ex) {
+            throw ex;
+        }
+
+        // Vaciar los detalles de la compañía.
+        fillCompaniaDetails(null);
+        
+        String message = String.format("Compañía [ %s ] dada de baja con éxito.", 
+                nombreCompania);
+        JOptionPane.showMessageDialog(this, message, 
+                this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
+    }
+    // </editor-fold>
+
+    /**
+     * Recupera la compañía seleccionada de la tabla de compañías disponibles.
+     * @return Compañía seleccionada.
+     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     */
+    private Compania getSelectedCompania() throws NullPointerException
+    {
+        var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
+        Compania compania;
+        
+        try {
+            compania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
+        } catch (IndexOutOfBoundsException ex) {
+            // En caso de no haber una compañía seleccionada, 
+            // los botones deberían estar deshabilitados.
+            throw new NullPointerException("No se ha seleccionado ninguna compañía de la tabla.");
+        }
+        
+        return compania;
+    }
+    
+    /**
+     * Comprueba que todas las etiquetas correspondientes a los mensajes de
+     * validación esten vacíos, confirmando que los campos del formulario son válidos.
+     * @return Verdadero si el formulario es valido, falso en su defecto.
+     */
+    private boolean allFieldsAreValid()
+    {
+        return lDireccionSedeCentralWarning.getText().isEmpty() &&
+                lTelefonoATAWarning.getText().isEmpty() &&
+                lTelefonoATCWarning.getText().isEmpty();
     }
     
     /**
      * Crea una nueva compañía a partir de los campos rellenados en el panel
-     * pCompaniaDetails.
-     * @return Compañía sin validar.
+     * pCompaniaDetails. Los campos deben ser válidos.
+     * @return Compañía validada.
+     * @throws IllegalArgumentException Si existen violaciones de validación en el formulario.
      */
-    private Compania getCompaniaFromFields()
+    private Compania getCompaniaFromFields() throws IllegalArgumentException
     {
+        if (!allFieldsAreValid()) {
+            throw new IllegalArgumentException("Existen violaciones de validación en el formulario.");
+        }
+        
         Short prefijo;
         try {
             prefijo = Short.valueOf(tfPrefijo.getText());
@@ -110,113 +257,6 @@ public class MainFrame extends javax.swing.JFrame
     }
 
     /**
-     * Recupera la compañía seleccionada de la tabla de compañías disponibles.
-     * @return Compañía seleccionada.
-     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
-     */
-    private Compania getSelectedCompania() throws NullPointerException
-    {
-        var companiaTableModel = (CompaniaTableModel) tCompaniaResults.getModel();
-        Compania selectedCompania;
-        
-        try {
-            selectedCompania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
-        } catch (IndexOutOfBoundsException ex) {
-            // En caso de no haber una compañía seleccionada, 
-            // los botones deberían estar deshabilitados.
-            throw new NullPointerException("No se ha seleccionado ninguna compañía de la tabla.");
-        }
-        
-        return selectedCompania;
-    }
-    
-    /**
-     * Guarda los cámbios realizados sobre la compañía seleccionada.
-     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
-     * @see getSelectedCompania
-     * @see Compania#override(Compania)
-     */
-    private void saveChangesToCompania() throws NullPointerException
-    {
-        // Obtenemos compañía seleccionada.
-        Compania selectedCompania = getSelectedCompania();
-        
-        // Generamos una nueva compañía a partir de los datos modificados.
-        Compania newCompania = getCompaniaFromFields();
-        
-        // Comprobamos si han habido cambios.
-        if (selectedCompania.equals(newCompania))
-        {
-            JOptionPane.showMessageDialog(this, "No se ha realizado ningún cambio.",
-                    this.getName(), JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        // Validamos la nueva compañía.
-        Set<ConstraintViolation<Compania>> violations = validator.validate(newCompania);
-        if (!violations.isEmpty())
-        {
-            // Mostramos las violaciones de validación al usuario y
-            // cancelamos el proceso.
-            StringBuilder builder = new StringBuilder();
-            for (ConstraintViolation<Compania> violation : violations)
-            {
-                builder.append(violation.getMessage()).append("\n");
-            }
-            JOptionPane.showMessageDialog(this, new String(builder),
-                    this.getName(), JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Guardamos los datos validados en la compañía seleccionada.
-        selectedCompania.override(newCompania);
-        
-        String message = String.format("Compañía [ %s ] modificada con éxito.", 
-                selectedCompania.getNombre());
-        JOptionPane.showMessageDialog(this, message,
-                this.getName(), JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    /**
-     * Elimina al compañía seleccionada del listado de compañías.
-     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
-     * @see getSelectedCompania
-     * @see CompaniaTableModel#removeCompania(com.mycompany.gestorvuelos.dto.Compania)
-     */
-    private void shutdownCompania() throws NullPointerException
-    {
-        // Obtenemos compañía seleccionada.
-        Compania compania = getSelectedCompania();
-        
-        String nombreCompania = compania.getNombre();
-        var model = (CompaniaTableModel) tCompaniaResults.getModel();
-        
-        try {
-            model.removeCompania(compania);
-        } catch (IndexOutOfBoundsException ex) {
-            throw ex;
-        }
-
-        // Vaciar los detalles de la compañía.
-        fillCompaniaDetails(null);
-        
-        String message = String.format("Compañía [ %s ] dada de baja con éxito.", 
-                nombreCompania);
-        JOptionPane.showMessageDialog(this, message, 
-                this.getName(), JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    // ---> GETTERS&SETTERS <---
-    /**
-     * Obtiene el JTable que lista el registro de compañías.
-     * @return JTable de compañías.
-     */
-    public JTable getTableCompaniaResults()
-    {
-        return tCompaniaResults;
-    }
-
-    /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
@@ -235,7 +275,6 @@ public class MainFrame extends javax.swing.JFrame
         tfCompaniaSearcher = new javax.swing.JTextField();
         bRegisterCompania = new javax.swing.JButton();
         pCompaniaDetails = new javax.swing.JPanel();
-        pData = new javax.swing.JPanel();
         pCriticalData = new javax.swing.JPanel();
         lPrefijo = new javax.swing.JLabel();
         tfPrefijo = new javax.swing.JTextField();
@@ -243,22 +282,34 @@ public class MainFrame extends javax.swing.JFrame
         tfCodigo = new javax.swing.JTextField();
         lNombre = new javax.swing.JLabel();
         tfNombre = new javax.swing.JTextField();
+        pData = new javax.swing.JPanel();
         pDireccionSedeCentral = new javax.swing.JPanel();
+        pDireccionSedeCentralInput = new javax.swing.JPanel();
         lDireccionSedeCentral = new javax.swing.JLabel();
         tfDireccionSedeCentral = new javax.swing.JTextField();
+        pDireccionSedeCentralWarning = new javax.swing.JPanel();
+        lDireccionSedeCentralWarning = new javax.swing.JLabel();
         pMunicipioSedeCentral = new javax.swing.JPanel();
         lMunicipioSedeCentral = new javax.swing.JLabel();
         cbMunicipioSedeCentral = new javax.swing.JComboBox<>();
-        pTelefonoATC = new javax.swing.JPanel();
+        pTelefonoATA = new javax.swing.JPanel();
+        pTelefonoATASub = new javax.swing.JPanel();
         lTelefonoATA = new javax.swing.JLabel();
         tfTelefonoATA = new javax.swing.JTextField();
+        lTelefonoATAWarning = new javax.swing.JLabel();
+        pTelefonoATC = new javax.swing.JPanel();
+        pTelefonoATCSub = new javax.swing.JPanel();
         lTelefonoATC = new javax.swing.JLabel();
         tfTelefonoATC = new javax.swing.JTextField();
+        lTelefonoATCWarning = new javax.swing.JLabel();
         pActions = new javax.swing.JPanel();
         bShutdownCompania = new javax.swing.JButton();
         bSaveChangesCompania = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Compañías aéreas");
+        setMinimumSize(new java.awt.Dimension(600, 880));
+        setPreferredSize(new java.awt.Dimension(600, 880));
 
         pCompanias.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Compañías", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
         pCompanias.setLayout(new java.awt.BorderLayout(0, 10));
@@ -267,6 +318,7 @@ public class MainFrame extends javax.swing.JFrame
         pResults.setLayout(new javax.swing.BoxLayout(pResults, javax.swing.BoxLayout.LINE_AXIS));
 
         tCompaniaResults.setModel(new CompaniaTableModel(Util.getListCompania(), true));
+        tCompaniaResults.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tCompaniaResults.getSelectionModel().addListSelectionListener(new CompaniaListSelectionListener(this));
         jScrollPane1.setViewportView(tCompaniaResults);
 
@@ -304,11 +356,7 @@ public class MainFrame extends javax.swing.JFrame
         pCompanias.add(bRegisterCompania, java.awt.BorderLayout.PAGE_END);
 
         pCompaniaDetails.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Detalles de la compañía", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
-        pCompaniaDetails.setLayout(new java.awt.BorderLayout());
-
-        pData.setMinimumSize(new java.awt.Dimension(540, 168));
-        pData.setPreferredSize(new java.awt.Dimension(540, 168));
-        pData.setLayout(new java.awt.GridLayout(4, 0, 0, 5));
+        pCompaniaDetails.setLayout(new javax.swing.BoxLayout(pCompaniaDetails, javax.swing.BoxLayout.Y_AXIS));
 
         pCriticalData.setBackground(new java.awt.Color(232, 232, 232));
         pCriticalData.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
@@ -319,13 +367,10 @@ public class MainFrame extends javax.swing.JFrame
 
         tfPrefijo.setBackground(new java.awt.Color(232, 232, 232));
         tfPrefijo.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfPrefijo.setText("999");
         tfPrefijo.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         tfPrefijo.setMinimumSize(new java.awt.Dimension(34, 22));
         tfPrefijo.setPreferredSize(new java.awt.Dimension(34, 22));
         tfPrefijo.setEditable(false);
-        ((AbstractDocument) tfPrefijo.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "prefijo"));
         pCriticalData.add(tfPrefijo);
 
         lCodigo.setText("Código:");
@@ -333,85 +378,114 @@ public class MainFrame extends javax.swing.JFrame
 
         tfCodigo.setBackground(new java.awt.Color(232, 232, 232));
         tfCodigo.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfCodigo.setText("WW");
         tfCodigo.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         tfCodigo.setMinimumSize(new java.awt.Dimension(38, 22));
         tfCodigo.setPreferredSize(new java.awt.Dimension(38, 22));
         tfCodigo.setEditable(false);
-        ((AbstractDocument) tfCodigo.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "codigo"));
         pCriticalData.add(tfCodigo);
 
         lNombre.setText("Nombre:");
         pCriticalData.add(lNombre);
 
         tfNombre.setBackground(new java.awt.Color(232, 232, 232));
-        tfNombre.setText(" SAETA Soc Ecuatoriana de Ttes Aereos");
         tfNombre.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         tfNombre.setMinimumSize(new java.awt.Dimension(272, 26));
         tfNombre.setPreferredSize(new java.awt.Dimension(272, 26));
         tfNombre.setEditable(false);
-        ((AbstractDocument) tfNombre.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "nombre"));
         pCriticalData.add(tfNombre);
 
-        pData.add(pCriticalData);
+        pCompaniaDetails.add(pCriticalData);
 
-        pDireccionSedeCentral.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+        pData.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 5, 1));
+        pData.setMinimumSize(new java.awt.Dimension(540, 140));
+        pData.setPreferredSize(new java.awt.Dimension(540, 168));
+        pData.setLayout(new javax.swing.BoxLayout(pData, javax.swing.BoxLayout.Y_AXIS));
+
+        pDireccionSedeCentral.setLayout(new javax.swing.BoxLayout(pDireccionSedeCentral, javax.swing.BoxLayout.Y_AXIS));
+
+        pDireccionSedeCentralInput.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 5));
+        pDireccionSedeCentralInput.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 5));
 
         lDireccionSedeCentral.setText("Dirección sede central:");
-        pDireccionSedeCentral.add(lDireccionSedeCentral);
+        lDireccionSedeCentral.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 5));
+        pDireccionSedeCentralInput.add(lDireccionSedeCentral);
 
-        tfDireccionSedeCentral.setText("CALLE MARIA DE MOLINA, 54 , 2ª PLANTA. 28006, MADRID, MADRID");
         tfDireccionSedeCentral.setMinimumSize(new java.awt.Dimension(392, 26));
         tfDireccionSedeCentral.setPreferredSize(new java.awt.Dimension(392, 26));
-        ((AbstractDocument) tfDireccionSedeCentral.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "direccionSedeCentral"));
-        pDireccionSedeCentral.add(tfDireccionSedeCentral);
+        pDireccionSedeCentralInput.add(tfDireccionSedeCentral);
+
+        pDireccionSedeCentral.add(pDireccionSedeCentralInput);
+
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
+
+        lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
+        lDireccionSedeCentralWarning.setText("Warning message");
+        lDireccionSedeCentralWarning.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lDireccionSedeCentralWarning.setText("");
+        pDireccionSedeCentralWarning.add(lDireccionSedeCentralWarning, "card2");
+
+        pDireccionSedeCentral.add(pDireccionSedeCentralWarning);
 
         pData.add(pDireccionSedeCentral);
 
-        pMunicipioSedeCentral.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+        pMunicipioSedeCentral.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         lMunicipioSedeCentral.setText("Municipio sede central:");
         pMunicipioSedeCentral.add(lMunicipioSedeCentral);
 
-        cbMunicipioSedeCentral.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "San Vicente del Raspeig/Sant Vicent del Raspeig" }));
         String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);
         cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<>(municipioSedeCentralItems));
+        cbMunicipioSedeCentral.setSelectedItem(null);
         pMunicipioSedeCentral.add(cbMunicipioSedeCentral);
 
         pData.add(pMunicipioSedeCentral);
 
-        pTelefonoATC.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 10, 5));
+        pTelefonoATA.setLayout(new javax.swing.BoxLayout(pTelefonoATA, javax.swing.BoxLayout.LINE_AXIS));
+
+        pTelefonoATASub.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         lTelefonoATA.setText("Teléfono ATA:");
-        pTelefonoATC.add(lTelefonoATA);
+        pTelefonoATASub.add(lTelefonoATA);
 
         tfTelefonoATA.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfTelefonoATA.setText("+001 404555017077");
         tfTelefonoATA.setMinimumSize(new java.awt.Dimension(130, 22));
         tfTelefonoATA.setPreferredSize(new java.awt.Dimension(130, 22));
-        ((AbstractDocument) tfTelefonoATA.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "telefonoATA"));
-        pTelefonoATC.add(tfTelefonoATA);
+        pTelefonoATASub.add(tfTelefonoATA);
+
+        lTelefonoATAWarning.setForeground(new java.awt.Color(204, 51, 0));
+        lTelefonoATAWarning.setText("Warning message");
+        lTelefonoATAWarning.setText("");
+        pTelefonoATASub.add(lTelefonoATAWarning);
+
+        pTelefonoATA.add(pTelefonoATASub);
+
+        pData.add(pTelefonoATA);
+
+        pTelefonoATC.setLayout(new javax.swing.BoxLayout(pTelefonoATC, javax.swing.BoxLayout.LINE_AXIS));
+
+        pTelefonoATCSub.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         lTelefonoATC.setText("Teléfono ATC:");
-        pTelefonoATC.add(lTelefonoATC);
+        pTelefonoATCSub.add(lTelefonoATC);
 
         tfTelefonoATC.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfTelefonoATC.setText("+001 404555017066");
         tfTelefonoATC.setMinimumSize(new java.awt.Dimension(130, 22));
         tfTelefonoATC.setPreferredSize(new java.awt.Dimension(130, 22));
-        ((AbstractDocument) tfTelefonoATC.getDocument()).setDocumentFilter(
-            new MaxCharsDocumentFilter(this, Compania.class, "telefonoATC"));
-        pTelefonoATC.add(tfTelefonoATC);
+        pTelefonoATCSub.add(tfTelefonoATC);
+
+        lTelefonoATCWarning.setForeground(new java.awt.Color(204, 51, 0));
+        lTelefonoATCWarning.setText("Warning message");
+        lTelefonoATCWarning.setText("");
+        pTelefonoATCSub.add(lTelefonoATCWarning);
+
+        pTelefonoATC.add(pTelefonoATCSub);
 
         pData.add(pTelefonoATC);
 
-        pCompaniaDetails.add(pData, java.awt.BorderLayout.CENTER);
+        pCompaniaDetails.add(pData);
 
         pActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        pActions.setLayout(new java.awt.BorderLayout(20, 0));
 
         bShutdownCompania.setText("Dar de baja");
         bShutdownCompania.setEnabled(false);
@@ -422,6 +496,7 @@ public class MainFrame extends javax.swing.JFrame
                 bShutdownCompaniaActionPerformed(evt);
             }
         });
+        pActions.add(bShutdownCompania, java.awt.BorderLayout.LINE_START);
 
         bSaveChangesCompania.setText("Guardar cambios");
         bSaveChangesCompania.setEnabled(false);
@@ -432,29 +507,9 @@ public class MainFrame extends javax.swing.JFrame
                 bSaveChangesCompaniaActionPerformed(evt);
             }
         });
+        pActions.add(bSaveChangesCompania, java.awt.BorderLayout.CENTER);
 
-        javax.swing.GroupLayout pActionsLayout = new javax.swing.GroupLayout(pActions);
-        pActions.setLayout(pActionsLayout);
-        pActionsLayout.setHorizontalGroup(
-            pActionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pActionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(bShutdownCompania)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(bSaveChangesCompania, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        pActionsLayout.setVerticalGroup(
-            pActionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pActionsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(pActionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(bShutdownCompania, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bSaveChangesCompania, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        pCompaniaDetails.add(pActions, java.awt.BorderLayout.PAGE_END);
+        pCompaniaDetails.add(pActions);
 
         fillCompaniaDetails(null);
 
@@ -464,20 +519,18 @@ public class MainFrame extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(pCompaniaDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pCompaniaDetails, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(pCompaniaDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addComponent(pCompaniaDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pCompanias, javax.swing.GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -529,19 +582,20 @@ public class MainFrame extends javax.swing.JFrame
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CompaniasManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CompaniasManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CompaniasManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CompaniasManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new MainFrame().setVisible(true);
+            new CompaniasManagerFrame().setVisible(true);
         });
     }
 
@@ -554,11 +608,14 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lCodigo;
     private javax.swing.JLabel lDireccionSedeCentral;
+    private javax.swing.JLabel lDireccionSedeCentralWarning;
     private javax.swing.JLabel lMunicipioSedeCentral;
     private javax.swing.JLabel lNombre;
     private javax.swing.JLabel lPrefijo;
     private javax.swing.JLabel lTelefonoATA;
+    private javax.swing.JLabel lTelefonoATAWarning;
     private javax.swing.JLabel lTelefonoATC;
+    private javax.swing.JLabel lTelefonoATCWarning;
     private javax.swing.JPanel pActions;
     private javax.swing.JPanel pBuscador;
     private javax.swing.JPanel pCompaniaDetails;
@@ -566,9 +623,14 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JPanel pCriticalData;
     private javax.swing.JPanel pData;
     private javax.swing.JPanel pDireccionSedeCentral;
+    private javax.swing.JPanel pDireccionSedeCentralInput;
+    private javax.swing.JPanel pDireccionSedeCentralWarning;
     private javax.swing.JPanel pMunicipioSedeCentral;
     private javax.swing.JPanel pResults;
+    private javax.swing.JPanel pTelefonoATA;
+    private javax.swing.JPanel pTelefonoATASub;
     private javax.swing.JPanel pTelefonoATC;
+    private javax.swing.JPanel pTelefonoATCSub;
     private javax.swing.JTable tCompaniaResults;
     private javax.swing.JTextField tfCodigo;
     private javax.swing.JTextField tfCompaniaSearcher;

@@ -1,12 +1,9 @@
 package com.mycompany.gestorvuelos.gui.logic;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Size;
-import java.awt.Component;
 import java.lang.reflect.Field;
-import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
@@ -19,27 +16,27 @@ import javax.swing.text.DocumentFilter;
  */
 public class MaxCharsDocumentFilter extends DocumentFilter
 {
-    private Validator validator;
-    private Component parent;
-    private Class<?> dtoClass;
-    private String attrName;
+    private final Class<?> dtoClass;
+    private final String attrName;
+    private final JLabel violationLabel;
 
     /**
-     * Aplica la mutación del documento solo en caso de no superar el límite de caracteres del atributo
-     * vinculado, determinado por las etiquetas @Size y @Digits.
-     * @param parent Componente en el que el diálogo de error se muestra.
-     * @param dtoClass Clase a la que pertenece el objeto cuyo atributo se va a modificar a través del documento.
+     * Aplica la mutación del documento solo en caso de no superar el límite de 
+     * caracteres del atributo vinculado, determinado por las etiquetas @Size y @Digits.
+     * @param dtoClass Clase a la que pertenece el objeto cuyo atributo se va a 
+     * modificar a través del documento.
      * @param attrName Nombre del atributo vinculado al documento que contiene 
      * la etiqueta @Size(max) o la etiqueta @Digits(integer).
+     * @param violationLabel Etiqueta en la que se mostraran los mensajes de error
+     * de validación del atributo.
      * @see jakarta.validation.constraints.Size
      * @see jakarta.validation.constraints.Digits
      */
-    public MaxCharsDocumentFilter(Component parent, Class<?> dtoClass, String attrName)
+    public MaxCharsDocumentFilter(Class<?> dtoClass, String attrName, JLabel violationLabel)
     {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
-        this.parent = parent;
         this.dtoClass = dtoClass;
         this.attrName = attrName;
+        this.violationLabel = violationLabel;
     }
 
     @Override
@@ -60,12 +57,19 @@ public class MaxCharsDocumentFilter extends DocumentFilter
 
         // Verificamos si se excede el límite de caracteres.
         if (replaceLength > maxLength) {
-            // No se realiza la inserción.
-            String message = String.format("El campo \"%s\" está limitado a %d caracteres.", attrName, maxLength);
-            JOptionPane.showMessageDialog(parent, message, parent.getName(), JOptionPane.WARNING_MESSAGE);
+            // Permitimos la inserción de un caracter adicional para mostrar
+            // el error de validación.
+            if (replaceLength == maxLength + 1) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+            
+            // Mostramos el error de validación.
+            String message = String.format("Campo limitado a %d caracteres", maxLength);
+            violationLabel.setText(message);
             return;
         }
 
+        violationLabel.setText("");
         super.replace(fb, offset, length, text, attrs);
     }
     

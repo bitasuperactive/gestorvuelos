@@ -6,7 +6,6 @@ import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.business.logic.Util;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.text.AbstractDocument;
 import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
@@ -19,19 +18,16 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 /**
- *
- * @author PVita
+ * Formulario validado de registro de compañías.
  */
 public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements ValidationFormulary
 {
-    private final CompaniaTableModel model;
-
     /**
      * Crea un nuevo diálogo RegisterNewCompaniaDialog.
      * @param parent Padre del diálogo.
      * @param modal Si es modal.
      * @param model Modelo en que insertar la compañía a crear.
-     * @throws IllegalArgumentException Si las utilidades requeridas 
+     * @throws NullPointerException Si las utilidades requeridas 
      * no han sido inicializadas.
      */
     public RegisterNewCompaniaDialog(java.awt.Frame parent, boolean modal, CompaniaTableModel model)  throws NullPointerException
@@ -40,6 +36,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         this.model = model;
         checkUtilsInitialized();
         initComponents();
+        setLocationRelativeTo(parent);
         setupDocumentListeners();
         triggerDocumentListeners();
     }
@@ -50,6 +47,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         bRegisterCompania.setEnabled(allFieldsAreValid());
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Constructor methods">
     /**
      * Lanza una excepción si las utilidades requeridas no se encuentran disponibles.
      * @throws NullPointerException Si las utilidades requeridas no se 
@@ -60,7 +58,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     {
         if (!Util.isInitialized()) {
             throw new NullPointerException("Excepción de inicialización:"
-                    + " las utilidades requeridas no se encuentran disponibles.");
+                    + " las utilidades requeridas son nulas.");
         }
     }
     
@@ -74,17 +72,17 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     {
         // Establecer límites de caracteres.
         ((AbstractDocument) tfPrefijo.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "prefijo"));
+                new MaxCharsDocumentFilter(Compania.class, "prefijo", lPrefijoWarning));
         ((AbstractDocument) tfCodigo.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "codigo"));
+                new MaxCharsDocumentFilter(Compania.class, "codigo", lCodigoWarning));
         ((AbstractDocument) tfNombre.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "nombre"));
+                new MaxCharsDocumentFilter(Compania.class, "nombre", lNombreWarning));
         ((AbstractDocument) tfDireccionSedeCentral.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "direccionSedeCentral"));
+                new MaxCharsDocumentFilter(Compania.class, "direccionSedeCentral", lDireccionSedeCentralWarning));
         ((AbstractDocument) tfTelefonoATA.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "telefonoATA"));
+                new MaxCharsDocumentFilter(Compania.class, "telefonoATA", lTelefonoATAWarning));
         ((AbstractDocument) tfTelefonoATC.getDocument()).setDocumentFilter(
-                new MaxCharsDocumentFilter(this, Compania.class, "telefonoATC"));
+                new MaxCharsDocumentFilter(Compania.class, "telefonoATC", lTelefonoATCWarning));
 
         // Establecer validadores.
         tfPrefijo.getDocument().addDocumentListener(new CompaniaValidatorDocumentListener(this, "prefijo", lPrefijoWarning));
@@ -120,7 +118,9 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
             }
         }
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Button methods">
     /**
      * Registra una nueva compañía en el listado de compañías disponibles
      * por medio de los campos validados del formulario.
@@ -133,7 +133,10 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         try {
             compania = getCompaniaFromFields();
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
+            JOptionPane.showMessageDialog(this, 
+                    ex.getMessage(), 
+                    this.getTitle(), 
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -144,9 +147,25 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         String message = String.format("Compañía [ %s ] registrada con éxito.", 
                 compania.getNombre());
         JOptionPane.showMessageDialog(this, message,
-                this.getName(), JOptionPane.INFORMATION_MESSAGE);
+                this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
         
         this.dispose();
+    }
+    // </editor-fold>
+    
+    /**
+     * Comprueba que todas las etiquetas correspondientes a los mensajes de
+     * validación esten vacíos, confirmando que los campos del formulario son válidos.
+     * @return Verdadero si el formulario es válido, falso en su defecto.
+     */
+    private boolean allFieldsAreValid()
+    {
+        return lPrefijoWarning.getText().isEmpty() &&
+                lCodigoWarning.getText().isEmpty() &&
+                lNombreWarning.getText().isEmpty() &&
+                lDireccionSedeCentralWarning.getText().isEmpty() &&
+                lTelefonoATAWarning.getText().isEmpty() &&
+                lTelefonoATCWarning.getText().isEmpty();
     }
     
     /**
@@ -180,27 +199,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         
         return new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
     }
-    
-    /**
-     * Comprueba que todas las etiquetas correspondientes a los mensajes de
-     * validación esten vacíos, confirmando que los campos del formulario son válidos.
-     * @return Verdadero si el formulario es valido, falso en su defecto.
-     */
-    private boolean allFieldsAreValid()
-    {
-        return lPrefijoWarning.getText().isEmpty() &&
-                lCodigoWarning.getText().isEmpty() &&
-                lNombreWarning.getText().isEmpty() &&
-                lDireccionSedeCentralWarning.getText().isEmpty() &&
-                lTelefonoATAWarning.getText().isEmpty() &&
-                lTelefonoATCWarning.getText().isEmpty();
-    }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -222,6 +221,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pNombreSub = new javax.swing.JPanel();
         lNombre = new javax.swing.JLabel();
         tfNombre = new javax.swing.JTextField();
+        pNombreWarning = new javax.swing.JPanel();
         lNombreWarning = new javax.swing.JLabel();
         pData = new javax.swing.JPanel();
         pDireccionSedeCentral = new javax.swing.JPanel();
@@ -248,6 +248,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         bRegisterCompania = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Nueva compañía aérea");
+        setResizable(false);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
         pCriticalData.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos obligatorios"));
@@ -261,8 +263,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pPrefijoSub.add(lPrefijo);
 
         tfPrefijo.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfPrefijo.setMinimumSize(new java.awt.Dimension(34, 22));
-        tfPrefijo.setPreferredSize(new java.awt.Dimension(34, 22));
+        tfPrefijo.setMinimumSize(new java.awt.Dimension(44, 22));
+        tfPrefijo.setPreferredSize(new java.awt.Dimension(44, 22));
         pPrefijoSub.add(tfPrefijo);
 
         lPrefijoWarning.setForeground(new java.awt.Color(204, 51, 0));
@@ -282,17 +284,17 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pCodigoInput.add(lCodigo);
 
         tfCodigo.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfCodigo.setMinimumSize(new java.awt.Dimension(38, 22));
-        tfCodigo.setPreferredSize(new java.awt.Dimension(38, 22));
+        tfCodigo.setMinimumSize(new java.awt.Dimension(48, 22));
+        tfCodigo.setPreferredSize(new java.awt.Dimension(48, 22));
         pCodigoInput.add(tfCodigo);
 
         pCodigo.add(pCodigoInput);
 
-        pCodigoWarning.setLayout(new java.awt.CardLayout());
+        pCodigoWarning.setLayout(new java.awt.CardLayout(5, 0));
 
         lCodigoWarning.setForeground(new java.awt.Color(204, 51, 0));
         lCodigoWarning.setText("Warning message");
-        lCodigoWarning.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
+        lCodigoWarning.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         lCodigoWarning.setText("");
         pCodigoWarning.add(lCodigoWarning, "card2");
 
@@ -301,24 +303,28 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pCriticalData.add(pCodigo);
 
         pNombre.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 5, 1));
-        pNombre.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
+        pNombre.setLayout(new javax.swing.BoxLayout(pNombre, javax.swing.BoxLayout.Y_AXIS));
 
         pNombreSub.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         lNombre.setText("Nombre:");
         pNombreSub.add(lNombre);
 
-        tfNombre.setMinimumSize(new java.awt.Dimension(272, 26));
-        tfNombre.setPreferredSize(new java.awt.Dimension(272, 26));
+        tfNombre.setMinimumSize(new java.awt.Dimension(300, 26));
+        tfNombre.setPreferredSize(new java.awt.Dimension(300, 26));
         pNombreSub.add(tfNombre);
+
+        pNombre.add(pNombreSub);
+
+        pNombreWarning.setLayout(new java.awt.CardLayout(5, 0));
 
         lNombreWarning.setForeground(new java.awt.Color(204, 51, 0));
         lNombreWarning.setText("Warning message");
         lNombreWarning.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         lNombreWarning.setText("");
-        pNombreSub.add(lNombreWarning);
+        pNombreWarning.add(lNombreWarning, "card2");
 
-        pNombre.add(pNombreSub);
+        pNombre.add(pNombreWarning);
 
         pCriticalData.add(pNombre);
 
@@ -332,23 +338,23 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pDireccionSedeCentral.setLayout(new javax.swing.BoxLayout(pDireccionSedeCentral, javax.swing.BoxLayout.Y_AXIS));
 
         pDireccionSedeCentralInput.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 5));
-        pDireccionSedeCentralInput.setLayout(new java.awt.BorderLayout(5, 0));
+        pDireccionSedeCentralInput.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
 
         lDireccionSedeCentral.setText("Dirección sede central:");
-        pDireccionSedeCentralInput.add(lDireccionSedeCentral, java.awt.BorderLayout.LINE_START);
+        lDireccionSedeCentral.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 5));
+        pDireccionSedeCentralInput.add(lDireccionSedeCentral);
 
         tfDireccionSedeCentral.setMinimumSize(new java.awt.Dimension(392, 26));
         tfDireccionSedeCentral.setPreferredSize(new java.awt.Dimension(392, 26));
-        pDireccionSedeCentralInput.add(tfDireccionSedeCentral, java.awt.BorderLayout.CENTER);
+        pDireccionSedeCentralInput.add(tfDireccionSedeCentral);
 
         pDireccionSedeCentral.add(pDireccionSedeCentralInput);
 
-        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout());
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
 
         lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
         lDireccionSedeCentralWarning.setText("Warning message");
         lDireccionSedeCentralWarning.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        lDireccionSedeCentralWarning.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
         lDireccionSedeCentralWarning.setText("");
         pDireccionSedeCentralWarning.add(lDireccionSedeCentralWarning, "card2");
 
@@ -376,8 +382,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pTelefonoATASub.add(lTelefonoATA);
 
         tfTelefonoATA.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfTelefonoATA.setMinimumSize(new java.awt.Dimension(130, 22));
-        tfTelefonoATA.setPreferredSize(new java.awt.Dimension(130, 22));
+        tfTelefonoATA.setMinimumSize(new java.awt.Dimension(150, 22));
+        tfTelefonoATA.setPreferredSize(new java.awt.Dimension(150, 22));
         pTelefonoATASub.add(tfTelefonoATA);
 
         lTelefonoATAWarning.setForeground(new java.awt.Color(204, 51, 0));
@@ -397,8 +403,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         pTelefonoATCSub.add(lTelefonoATC);
 
         tfTelefonoATC.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        tfTelefonoATC.setMinimumSize(new java.awt.Dimension(130, 22));
-        tfTelefonoATC.setPreferredSize(new java.awt.Dimension(130, 22));
+        tfTelefonoATC.setMinimumSize(new java.awt.Dimension(150, 22));
+        tfTelefonoATC.setPreferredSize(new java.awt.Dimension(150, 22));
         pTelefonoATCSub.add(tfTelefonoATC);
 
         lTelefonoATCWarning.setForeground(new java.awt.Color(204, 51, 0));
@@ -469,6 +475,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         registerCompania();
     }//GEN-LAST:event_bRegisterCompaniaActionPerformed
 
+    private final CompaniaTableModel model;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bRegisterCompania;
@@ -498,6 +505,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     private javax.swing.JPanel pMunicipioSedeCentral;
     private javax.swing.JPanel pNombre;
     private javax.swing.JPanel pNombreSub;
+    private javax.swing.JPanel pNombreWarning;
     private javax.swing.JPanel pPrefijo;
     private javax.swing.JPanel pPrefijoSub;
     private javax.swing.JPanel pTelefonoATA;
