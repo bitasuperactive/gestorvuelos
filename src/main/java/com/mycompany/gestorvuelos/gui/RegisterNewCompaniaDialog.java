@@ -1,15 +1,15 @@
-package com.mycompany.gestorvuelos.igu;
+package com.mycompany.gestorvuelos.gui;
 
 import com.mycompany.gestorvuelos.dto.Compania;
-import com.mycompany.gestorvuelos.igu.listeners.CompaniaValidatorDocumentListener;
-import com.mycompany.gestorvuelos.igu.logic.MaxCharsDocumentFilter;
-import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
+import com.mycompany.gestorvuelos.gui.listeners.CompaniaValidatorDocumentListener;
+import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
+import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.business.logic.Util;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.text.AbstractDocument;
-import com.mycompany.gestorvuelos.igu.interfaces.ValidationFormulary;
+import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
 import com.mycompany.gestorvuelos.business.logic.ComponentManager;
 import java.awt.Component;
 import java.awt.Container;

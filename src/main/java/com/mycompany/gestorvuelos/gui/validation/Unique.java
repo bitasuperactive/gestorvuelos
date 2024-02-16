@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.validation;
+package com.mycompany.gestorvuelos.gui.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

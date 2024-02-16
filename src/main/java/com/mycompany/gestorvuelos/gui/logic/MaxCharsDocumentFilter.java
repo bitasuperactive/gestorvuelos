@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.logic;
+package com.mycompany.gestorvuelos.gui.logic;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

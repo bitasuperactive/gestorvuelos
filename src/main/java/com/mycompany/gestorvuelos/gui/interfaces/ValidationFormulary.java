@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.interfaces;
+package com.mycompany.gestorvuelos.gui.interfaces;
 
 import javax.swing.JButton;
 

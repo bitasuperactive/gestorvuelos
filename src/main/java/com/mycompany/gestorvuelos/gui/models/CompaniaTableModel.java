@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.models;
+package com.mycompany.gestorvuelos.gui.models;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import java.util.Comparator;

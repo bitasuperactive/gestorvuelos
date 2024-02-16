@@ -1,10 +1,10 @@
-package com.mycompany.gestorvuelos.igu;
+package com.mycompany.gestorvuelos.gui;
 
 import com.mycompany.gestorvuelos.dto.Compania;
-import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.igu.listeners.CompaniaListSelectionListener;
-import com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum;
-import com.mycompany.gestorvuelos.igu.logic.MaxCharsDocumentFilter;
+import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
+import com.mycompany.gestorvuelos.gui.listeners.CompaniaListSelectionListener;
+import com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum;
+import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.business.logic.Util;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -266,7 +266,7 @@ public class MainFrame extends javax.swing.JFrame
         pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
         pBuscador.setLayout(new java.awt.BorderLayout(10, 0));
 
-        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum.valuesToString()));
+        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum.valuesToString()));
         cbCompaniaSearchType.setSelectedItem(CompaniaSearchTypeEnum.NOMBRE.toString());
         cbCompaniaSearchType.addActionListener(new java.awt.event.ActionListener()
         {
@@ -277,7 +277,7 @@ public class MainFrame extends javax.swing.JFrame
         });
         pBuscador.add(cbCompaniaSearchType, java.awt.BorderLayout.LINE_START);
 
-        tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.listeners.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
+        tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.gui.listeners.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
         pBuscador.add(tfCompaniaSearcher, java.awt.BorderLayout.CENTER);
 
         pCompanias.add(pBuscador, java.awt.BorderLayout.PAGE_START);

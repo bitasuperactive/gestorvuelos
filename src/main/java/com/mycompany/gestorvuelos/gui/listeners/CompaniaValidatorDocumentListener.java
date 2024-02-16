@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.listeners;
+package com.mycompany.gestorvuelos.gui.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import jakarta.validation.ConstraintViolation;
@@ -9,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import com.mycompany.gestorvuelos.igu.interfaces.ValidationFormulary;
+import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
 
 /**
  * Validador en tiempo real del input del usuario para los datos de las compañías.
