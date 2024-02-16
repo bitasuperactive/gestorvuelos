@@ -2,9 +2,9 @@ package com.mycompany.gestorvuelos.igu.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
-import com.mycompany.gestorvuelos.negocio.logica.ListManager;
-import com.mycompany.gestorvuelos.negocio.logica.Util;
+import com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum;
+import com.mycompany.gestorvuelos.business.logic.ListManager;
+import com.mycompany.gestorvuelos.business.logic.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;

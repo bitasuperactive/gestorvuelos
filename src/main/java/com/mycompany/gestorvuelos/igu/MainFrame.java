@@ -3,9 +3,9 @@ package com.mycompany.gestorvuelos.igu;
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.igu.listeners.CompaniaListSelectionListener;
-import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
-import com.mycompany.gestorvuelos.igu.logica.MaxCharsDocumentFilter;
-import com.mycompany.gestorvuelos.negocio.logica.Util;
+import com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum;
+import com.mycompany.gestorvuelos.igu.logic.MaxCharsDocumentFilter;
+import com.mycompany.gestorvuelos.business.logic.Util;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -266,7 +266,7 @@ public class MainFrame extends javax.swing.JFrame
         pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
         pBuscador.setLayout(new java.awt.BorderLayout(10, 0));
 
-        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum.valuesToString()));
+        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum.valuesToString()));
         cbCompaniaSearchType.setSelectedItem(CompaniaSearchTypeEnum.NOMBRE.toString());
         cbCompaniaSearchType.addActionListener(new java.awt.event.ActionListener()
         {

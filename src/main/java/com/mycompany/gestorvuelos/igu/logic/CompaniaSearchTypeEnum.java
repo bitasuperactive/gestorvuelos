@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.igu.logica;
+package com.mycompany.gestorvuelos.igu.logic;
 
 /**
  * Campos de filtrado permitidos para una lista de compañías.

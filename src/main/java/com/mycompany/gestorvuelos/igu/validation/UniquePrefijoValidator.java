@@ -1,6 +1,6 @@
 package com.mycompany.gestorvuelos.igu.validation;
 
-import com.mycompany.gestorvuelos.negocio.logica.ListManager;
+import com.mycompany.gestorvuelos.business.logic.ListManager;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -122,7 +122,7 @@
             <Component class="javax.swing.JComboBox" name="cbCompaniaSearchType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel&lt;&gt;(com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum.valuesToString())" type="code"/>
+                  <Connection code="new DefaultComboBoxModel&lt;&gt;(com.mycompany.gestorvuelos.igu.logic.CompaniaSearchTypeEnum.valuesToString())" type="code"/>
                 </Property>
               </Properties>
               <Events>

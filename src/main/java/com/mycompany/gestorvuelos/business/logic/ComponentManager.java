@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.negocio.logica;
+package com.mycompany.gestorvuelos.business.logic;
 
 import java.awt.Component;
 import java.awt.Container;
