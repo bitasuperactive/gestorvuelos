@@ -1,35 +1,21 @@
 package com.mycompany.gestorvuelos.igu;
 
 import com.mycompany.gestorvuelos.dto.Compania;
-import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.igu.logica.CompaniaListSelectionListener;
-import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener;
+import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
+import com.mycompany.gestorvuelos.igu.listeners.CompaniaListSelectionListener;
 import com.mycompany.gestorvuelos.igu.logica.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.igu.logica.MaxCharsDocumentFilter;
-import com.mycompany.gestorvuelos.negocio.logica.ListManager;
 import com.mycompany.gestorvuelos.negocio.logica.Util;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import static java.awt.image.ImageObserver.HEIGHT;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Set;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicListUI;
 import javax.swing.text.AbstractDocument;
 
 /**
@@ -40,8 +26,7 @@ public class MainFrame extends javax.swing.JFrame
     private Validator validator;
     
     /**
-     * Crea un nuevo formulario MainFrame inicializando los Utils correspondientes.
-     * @see Util
+     * Crea un nuevo formulario MainFrame.
      */
     public MainFrame()
     {
@@ -237,6 +222,7 @@ public class MainFrame extends javax.swing.JFrame
         pBuscador = new javax.swing.JPanel();
         cbCompaniaSearchType = new javax.swing.JComboBox<>();
         tfCompaniaSearcher = new javax.swing.JTextField();
+        bRegisterCompania = new javax.swing.JButton();
         pCompaniaDetails = new javax.swing.JPanel();
         pData = new javax.swing.JPanel();
         pCriticalData = new javax.swing.JPanel();
@@ -291,10 +277,20 @@ public class MainFrame extends javax.swing.JFrame
         });
         pBuscador.add(cbCompaniaSearchType, java.awt.BorderLayout.LINE_START);
 
-        tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
+        tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.listeners.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));
         pBuscador.add(tfCompaniaSearcher, java.awt.BorderLayout.CENTER);
 
         pCompanias.add(pBuscador, java.awt.BorderLayout.PAGE_START);
+
+        bRegisterCompania.setText("Gestionar alta de nueva compañía");
+        bRegisterCompania.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                bRegisterCompaniaActionPerformed(evt);
+            }
+        });
+        pCompanias.add(bRegisterCompania, java.awt.BorderLayout.PAGE_END);
 
         pCompaniaDetails.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Detalles de la compañía", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
         pCompaniaDetails.setLayout(new java.awt.BorderLayout());
@@ -492,6 +488,15 @@ public class MainFrame extends javax.swing.JFrame
         tfCompaniaSearcher.setText("");
     }//GEN-LAST:event_cbCompaniaSearchTypeActionPerformed
 
+    private void bRegisterCompaniaActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_bRegisterCompaniaActionPerformed
+    {//GEN-HEADEREND:event_bRegisterCompaniaActionPerformed
+        RegisterNewCompaniaDialog registerNewCompaniaDialog = 
+                new RegisterNewCompaniaDialog(this, 
+                        true, 
+                        (CompaniaTableModel) tCompaniaResults.getModel());
+        registerNewCompaniaDialog.setVisible(true);
+    }//GEN-LAST:event_bRegisterCompaniaActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -527,6 +532,7 @@ public class MainFrame extends javax.swing.JFrame
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bRegisterCompania;
     private javax.swing.JButton bSaveChangesCompania;
     private javax.swing.JButton bShutdownCompania;
     private javax.swing.JComboBox<String> cbCompaniaSearchType;

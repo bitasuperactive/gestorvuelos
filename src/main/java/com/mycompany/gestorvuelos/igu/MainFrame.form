@@ -140,7 +140,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="tfCompaniaSearcher">
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.logica.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));"/>
+                <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="tfCompaniaSearcher.getDocument().addDocumentListener(new com.mycompany.gestorvuelos.igu.listeners.CompaniaSearchListener(cbCompaniaSearchType, tCompaniaResults, true));"/>
               </AuxValues>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -150,6 +150,19 @@
             </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JButton" name="bRegisterCompania">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Gestionar alta de nueva compa&#xf1;&#xed;a"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bRegisterCompaniaActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="Last"/>
+            </Constraint>
+          </Constraints>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="pCompaniaDetails">
