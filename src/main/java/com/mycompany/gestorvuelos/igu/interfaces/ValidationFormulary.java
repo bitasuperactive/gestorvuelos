@@ -8,5 +8,9 @@ import javax.swing.JButton;
  */
 public interface ValidationFormulary
 {
+    /**
+     * Recupera el botón que hace uso directo de los campos del formulario.
+     * @return Botón principal del formulario.
+     */
     public JButton getSubmitButton();
 }
