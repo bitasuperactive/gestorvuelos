@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Unique
 {
-    String message() default "Este valor ya está registrado.";
+    String message() default "Este identificador ya está registrado";
     
     Class<?>[] groups() default {};
     
