@@ -24,10 +24,10 @@ public class Compania
      *      - Único.
      * </pre>
      */
-    @NotNull(message = "Campo obligatorio.")
+    @NotNull(message = "Campo obligatorio")
     @Digits(integer = 3, fraction = 0)
-    @Min(value = 1, message = "Debe ser positivo mayor a 0.")
-    @Max(value = 999, message = "No puede ser mayor a 999.")
+    @Min(value = 1, message = "Debe ser positivo mayor a 0")
+    @Max(value = 999, message = "No puede ser mayor a 999")
     @Unique
     private Short prefijo;
     
@@ -41,8 +41,8 @@ public class Compania
      */
     @NotBlank(message = "Campo obligatorio")
     @Pattern(regexp = "^([A-Z]{2}|[A-Z][0-9])$",
-            message = "Debe ser una cadena de dos caracteres en mayúsculas o"
-                    + " un caracter en mayúscula y un número.")
+            message = "Debe contener dos caracteres en mayúsculas o"
+                    + " un caracter en mayúscula y un número")
     @Size(max = 2)
     @Unique
     private String codigo;
@@ -55,7 +55,7 @@ public class Compania
      * </pre>
      */
     @NotBlank(message = "Campo obligatorio")
-    @Size(max = 40, message = "Limitado a 40 caracteres.")
+    @Size(max = 40, message = "Limitado a 40 caracteres")
     private String nombre;
     
     /**
@@ -64,7 +64,7 @@ public class Compania
      *      - Máximo 60 caracteres.
      * </pre>
      */
-    @Size(max = 60, message = "Limitada a 60 caracteres.")
+    @Size(max = 60, message = "Limitada a 60 caracteres")
     private String direccionSedeCentral;
     
     /**
@@ -81,8 +81,7 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$", 
-            message = "Debe ser un número internacional siguiendo la estructura: "
-                    + "+000 1020304...")
+            message = "Debe ser un número internacional: +000 1020304...")
     @Size(max = 17)
     private String telefonoATA;
     
@@ -93,8 +92,7 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$",
-            message = "Debe ser un número interncional siguiendo la estructura: "
-                    + "+000 1020304...")
+            message = "Debe ser un número interncional: +000 1020304...")
     @Size(max = 17)
     private String telefonoATC;
     
