@@ -64,7 +64,7 @@ public class Compania
      *      - Máximo 60 caracteres.
      * </pre>
      */
-    @Size(max = 60, message = "Limitada a 60 caracteres")
+    @Size(max = 60, message = "Limitado a 60 caracteres")
     private String direccionSedeCentral;
     
     /**

@@ -2,29 +2,35 @@ package com.mycompany.gestorvuelos.gui.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.gui.MainFrame;
-import javax.swing.JTable;
+import com.mycompany.gestorvuelos.gui.CompaniasManagerFrame;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
  * Escuchador que rellena los campos de la compañía seleccionada.
+ * Presenta alto grado de acoplamiento con la implementación específica
+ * de la clase CompaniasManagerFrame.
+ * @see CompaniasManagerFrame
  */
 public class CompaniaListSelectionListener implements ListSelectionListener
 {
-    private final MainFrame frame;
+    private final CompaniasManagerFrame companiasManagerFrame;
 
-    public CompaniaListSelectionListener(MainFrame frame)
+    /**
+     * Escuchador que rellena los campos de la compañía seleccionada.
+     * @param companiasManagerFrame Implementación específica de CompaniasManagerFrame.
+     */
+    public CompaniaListSelectionListener(CompaniasManagerFrame companiasManagerFrame)
     {
-        this.frame = frame;
+        this.companiasManagerFrame = companiasManagerFrame;
     }
 
     /**
      * Cuando cambia el valor de la selección, obtiene la compañía seleccionada
-     * y llama al método MainFrame.fillCompaniaDetails().
+     * y llama al método fillCompaniaDetails() de CompaniasManagerFrame.
      * <br> En caso de no haber selección, la compañía a rellenar es nula.
      * @param e El evento que caracteriza el cambio
-     * @see MainFrame#fillCompaniaDetails(com.mycompany.gestorvuelos.dto.Compania) 
+     * @see CompaniasManagerFrame#fillCompaniaDetails(com.mycompany.gestorvuelos.dto.Compania) 
      */
     @Override
     public void valueChanged(ListSelectionEvent e)
@@ -33,7 +39,7 @@ public class CompaniaListSelectionListener implements ListSelectionListener
             return;
         }
         
-        JTable tCompaniaResults = frame.getTableCompaniaResults();
+        var tCompaniaResults = companiasManagerFrame.getTableCompaniaResults();
         var model = (CompaniaTableModel) tCompaniaResults.getModel();
         Compania compania;
         
@@ -43,7 +49,7 @@ public class CompaniaListSelectionListener implements ListSelectionListener
             compania = null;
         }
         
-        frame.fillCompaniaDetails(compania);
+        companiasManagerFrame.fillCompaniaDetails(compania);
     }
 
 }
