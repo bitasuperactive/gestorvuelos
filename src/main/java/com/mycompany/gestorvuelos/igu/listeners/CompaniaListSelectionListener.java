@@ -1,7 +1,7 @@
 package com.mycompany.gestorvuelos.igu.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
-import com.mycompany.gestorvuelos.dto.models.CompaniaTableModel;
+import com.mycompany.gestorvuelos.igu.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.igu.MainFrame;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
