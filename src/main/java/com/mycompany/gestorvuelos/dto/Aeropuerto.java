@@ -2,15 +2,21 @@ package com.mycompany.gestorvuelos.dto;
 
 /**
  * Almacena los datos del aeropuerto.
- *
- * @author PVita
  */
 public class Aeropuerto
 {
+    /**
+     * Crea un aeropuerto sin datos.
+     */
+    public Aeropuerto()
+    {
+        this.codigoIATA = "";
+        this.nombre = "";
+        this.codigoMunicipio = 0;
+    }
 
     /**
-     * Crea un objeto del aeropuerto.
-     *
+     * Crea un aeropuerto.
      * @param codigoIATA Código identificador del aeropuerto.
      * @param nombre Nombre del aeropuerto.
      * @param codigoMunicipio Código numérico del municipio sede del aeropuerto.

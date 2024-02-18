@@ -3,6 +3,8 @@ package com.mycompany.gestorvuelos.business.logic;
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.CsvFiles;
+import com.mycompany.gestorvuelos.dto.VueloBase;
+import com.mycompany.gestorvuelos.dto.VueloDiario;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.util.NoSuchElementException;
 /**
  * Almacena las variables estáticas necesarias para el proyecto. Requiere
  * inicializar estas variables mediante el método initUtils.
+ * @see initUtils
  */
 public class Util
 {
@@ -27,18 +30,25 @@ public class Util
      */
     public static void initUtils(@NotEmpty String aeropuertoBaseCodigoIATA) throws IllegalArgumentException, IOException, NoSuchElementException
     {
-        csvPaths = PropertiesManager.getCsvFiles();
+        csvFiles = PropertiesManager.getCsvFiles();
         mapMunicipios = CsvManager.retrieveMapMunicipios();
         listAeropuertos = CsvManager.retrieveListAeropuerto();
         listCompania = CsvManager.retrieveListCompania();
+        listVueloBase = CsvManager.retrieveListVueloBase();
+        listVueloDiario = CsvManager.retrieveListVueloDiario();
         aeropuertoGestion = ListManager.getAeropuertoByCodigoIATA(aeropuertoBaseCodigoIATA);
         initialized = true;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Getters">
-    public static CsvFiles getCsvPaths()
+    public static boolean isInitialized()
     {
-        return (CsvFiles) getObject(csvPaths);
+        return initialized;
+    }
+    
+    public static CsvFiles getCsvFiles()
+    {
+        return (CsvFiles) getObject(csvFiles);
     }
 
     public static List<Aeropuerto> getListAeropuertos()
@@ -51,6 +61,16 @@ public class Util
         return (List<Compania>) getObject(listCompania);
     }
 
+    public static List<VueloBase> getListVueloBase()
+    {
+        return (List<VueloBase>) getObject(listVueloBase);
+    }
+
+    public static List<VueloDiario> getListVueloDiario()
+    {
+        return (List<VueloDiario>) getObject(listVueloDiario);
+    }
+
     public static Aeropuerto getAeropuertoGestion()
     {
         return (Aeropuerto) getObject(aeropuertoGestion);
@@ -60,24 +80,19 @@ public class Util
     {
         return (Map<String, Integer>) getObject(mapMunicipios);
     }
-
-    public static boolean isInitialized()
-    {
-        return initialized;
-    }
     
     /**
      * Devuelve el objeto especificado solo si este no es nulo.
      * @param obj Objeto a recuperar.
      * @return Objeto no nulo a recuperar.
-     * @throws IllegalArgumentException Si el objeto es nulo porque no se han 
+     * @throws NullPointerException Si el objeto es nulo porque no se han 
      * inicializado los útiles necesarios.
      * @see initUtils
      */
-    private static Object getObject(Object obj) throws IllegalArgumentException
+    private static Object getObject(Object obj) throws NullPointerException
     {
         if (obj == null) {
-            throw new IllegalArgumentException("No se han inicializado los útiles requeridos.");
+            throw new NullPointerException("No se han inicializado los útiles requeridos.");
         }
         
         return obj;
@@ -105,7 +120,7 @@ public class Util
     /**
      * Objeto que almacena las rutas a los archivos csv.
      */
-    private static CsvFiles csvPaths;
+    private static CsvFiles csvFiles;
     /**
      * Mapa Municipio-Código.
      */
@@ -118,6 +133,14 @@ public class Util
      * Lista de las compañias disponibles.
      */
     private static List<Compania> listCompania;
+    /**
+     * Lista de los vuelos base.
+     */
+    private static List<VueloBase> listVueloBase;
+    /**
+     * Lista de los vuelos diarios.
+     */
+    private static List<VueloDiario> listVueloDiario;
     /**
      * Aeropuerto de partida.
      */

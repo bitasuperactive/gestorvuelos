@@ -230,9 +230,7 @@
                 </Container>
                 <Container class="javax.swing.JPanel" name="pDireccionSedeCentralWarning">
 
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout">
-                    <Property name="horizontalGap" type="int" value="5"/>
-                  </Layout>
+                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="lDireccionSedeCentralWarning">
                       <Properties>

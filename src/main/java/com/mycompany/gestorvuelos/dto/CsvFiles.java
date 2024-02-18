@@ -8,25 +8,24 @@ import java.io.File;
  */
 public class CsvFiles
 {
-    private File aeropuertos;
-    private File companias;
-    private File municipios;
+    private final File aeropuertos;
+    private final File companias;
+    private final File vuelosBase;
+    private final File vuelosDiarios;
+    private final File municipios;
 
-    public CsvFiles(File aeropuertos, File companias, File municipios)
+    public CsvFiles(File aeropuertos, File companias, File vuelosBase, File vuelosDiarios, File municipios)
     {
         this.aeropuertos = aeropuertos;
         this.companias = companias;
+        this.vuelosBase = vuelosBase;
+        this.vuelosDiarios = vuelosDiarios;
         this.municipios = municipios;
     }
-    
+
     public File getAeropuertos()
     {
         return aeropuertos;
-    }
-
-    public void setAeropuertos(File aeropuertos)
-    {
-        this.aeropuertos = aeropuertos;
     }
 
     public File getCompanias()
@@ -34,18 +33,18 @@ public class CsvFiles
         return companias;
     }
 
-    public void setCompanias(File companias)
+    public File getVuelosBase()
     {
-        this.companias = companias;
+        return vuelosBase;
+    }
+
+    public File getVuelosDiarios()
+    {
+        return vuelosDiarios;
     }
 
     public File getMunicipios()
     {
         return municipios;
-    }
-
-    public void setMunicipios(File municipios)
-    {
-        this.municipios = municipios;
     }
 }

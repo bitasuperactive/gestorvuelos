@@ -5,14 +5,24 @@ import java.util.Date;
 /**
  * Almacena datos más detallados sobre el vuelo que despega o recibe el
  * aeropuerto.
- *
- * @author PVita
  */
 public class VueloDiario
 {
+    /**
+     * Crea un vuelo diario sin datos.
+     */
+    public VueloDiario()
+    {
+        this.vueloBase = new VueloBase();
+        this.fechaSalida = new Date();
+        this.horaSalida = new Date();
+        this.horaLlegada = new Date();
+        this.plazasOcupadas = 0;
+        this.precioPlaza = 0F;
+    }
 
     /**
-     * Crea un objeto del vuelo diario.
+     * Crea un vuelo diario.
      *
      * @param vueloBase Información base del vuelo que se va a efectuar.
      * @param fechaSalida Fecha de salida.

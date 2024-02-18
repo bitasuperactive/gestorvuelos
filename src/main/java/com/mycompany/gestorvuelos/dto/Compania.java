@@ -14,6 +14,7 @@ import com.mycompany.gestorvuelos.gui.validation.Unique;
  * Almacena todos los datos referentes a la compañia aerea con sus
  * correspondientes etiquetas de validación.
  */
+// TODO - ESTABLECER OBLIGATORIEDAD DE LOS CAMPOS OPCIONALES SI SE RELLENA ALGUNO DE ELLOS.
 public class Compania
 {
     /**

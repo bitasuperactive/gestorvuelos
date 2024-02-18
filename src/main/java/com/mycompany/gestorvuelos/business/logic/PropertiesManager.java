@@ -5,31 +5,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
  * Clase encargada de recuperar los valores almacenados en archivos de propiedades.
- * @author PVita
  */
 public class PropertiesManager
 {
     // <editor-fold defaultstate="collapsed" desc="Propiedades privadas">
     /**
-     * Ruta al archivo de propiedades que almacena las rutas de los csvs.
+     * Ruta al archivo de propiedades que almacena las rutas de los CSV requeridos.
      */
     private static final String CSVPATHS_PROPERTIES_PATH = "src\\main\\java\\com\\mycompany\\gestorvuelos\\CsvPaths.properties";
     /**
-     * Clave de la propiedad que almacena la ruta al archivo CSV de aeropuertos.
+     * Array de las claves del archivo de propiedades CsvPaths.
      */
-    private static final String AEROPUERTOS_PROPERTY = "aeropuertos";
-    /**
-     * Clave de la propiedad que almacena la ruta al archivo CSV de compañías.
-     */
-    private static final String COMPANIAS_PROPERTY = "companias";
-    /**
-     * Clave de la propiedad que almacena la ruta al archivo CSV de municipios.
-     */
-    private static final String MUNICIPIOS_PROPERTY = "municipios";
+    private static final String[] CSVPATHS_PROPERTIES = {
+            "aeropuertos",
+            "companias",
+            "vuelos.base",
+            "vuelos.diarios",
+            "municipios"
+    };
     // </editor-fold>
     
     /**
@@ -42,27 +41,29 @@ public class PropertiesManager
      */
     public static CsvFiles getCsvFiles() throws IOException, IllegalArgumentException, FileNotFoundException
     {
-        // Obtenemos las propiedades de CsvPaths.
+        List<File> csvFiles = new ArrayList(CSVPATHS_PROPERTIES.length);
+        
         Properties props = loadProperties();
+        
+        for (String prop : CSVPATHS_PROPERTIES) {
+            // Obtenemos la ruta al archivo CSV.
+            String csvPath = props.getProperty(prop);
+            
+            // Comprobamos que sea una ruta válida.
+            validatePath(csvPath);
+            
+            // Comprobamos que la ruta conduzca a un archivo existente y legible.
+            File csvFile = new File(csvPath);
+            checkFileReadability(csvFile, prop);
+            
+            csvFiles.add(csvFile);
+        }
 
-        // Obtenemos las rutas correspondientes a cada CSV requerido.
-        String aeropuertosCsvPath = props.getProperty(AEROPUERTOS_PROPERTY);
-        String companiasCsvPath = props.getProperty(COMPANIAS_PROPERTY);
-        String municipiosCsvPath = props.getProperty(MUNICIPIOS_PROPERTY);
-
-        // Comprobamos que sean valores válidos.
-        validatePaths(aeropuertosCsvPath, companiasCsvPath, municipiosCsvPath);
-
-        File fileAeropuertos = new File(aeropuertosCsvPath);
-        File fileCompanias = new File(companiasCsvPath);
-        File fileMunicipios = new File(municipiosCsvPath);
-
-        // Comprobamos que las rutas conduzcan a archivos existentes y legibles.
-        checkFileReadability(fileAeropuertos, AEROPUERTOS_PROPERTY);
-        checkFileReadability(fileCompanias, COMPANIAS_PROPERTY);
-        checkFileReadability(fileMunicipios, MUNICIPIOS_PROPERTY);
-
-        return new CsvFiles(fileAeropuertos, fileCompanias, fileMunicipios);
+        return new CsvFiles(csvFiles.get(0), 
+                csvFiles.get(1), 
+                csvFiles.get(2), 
+                csvFiles.get(3), 
+                csvFiles.get(4));
     }
 
     /**
@@ -82,16 +83,14 @@ public class PropertiesManager
     
     /**
      * Comprueba que la ruta especificada no sea nula o esté vacía.
-     * @param paths Rutas a validar.
+     * @param paths Ruta a validar.
      * @throws IllegalArgumentException Si la ruta especificada es nula o está vacía.
      */
-    private static void validatePaths(String... paths) throws IllegalArgumentException
+    private static void validatePath(String path) throws IllegalArgumentException
     {
-        for (String path : paths) {
-            if (path == null || path.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Existen rutas nulas o vacías en el archivo CsvPaths.");
-            }
+        if (path == null || path.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Existen rutas nulas o vacías en el archivo CsvPaths.");
         }
     }
     

@@ -4,14 +4,25 @@ import java.util.Date;
 
 /**
  * Almacena los datos básicos del vuelo que opera en el aeropuerto.
- *
- * @author PVita
  */
 public class VueloBase
 {
+    /**
+     * Crea un vuelo base sin datos.
+     */
+    public VueloBase()
+    {
+        this.codigo = "";
+        this.aeropuertoOrigen = new Aeropuerto();
+        this.aeropuertoDestino = new Aeropuerto();
+        this.plazas = 0;
+        this.horaSalida = new Date();
+        this.horaLlegada = new Date();
+        this.diasOperacion = "";
+    }
 
     /**
-     * Crea un objeto base del vuelo.
+     * Crea un vuelo base.
      *
      * @param codigo Código identificador del vuelo.
      * @param aeropuertoOrigen Aeropuerto de partida.
@@ -102,7 +113,8 @@ public class VueloBase
         this.diasOperacion = diasOperacion;
     }
 
-    // TODO - FORMATO: Número entero positivo cuyo máximo es 9999
+    // TODO - FORMATO: Se compone del código de la compañía y un número entero 
+    // positivo cuyo máximo es 9999.
     // Ejemplos de códigos de vuelos válidos: V73585, IB480
     private String codigo;
     private Aeropuerto aeropuertoOrigen;

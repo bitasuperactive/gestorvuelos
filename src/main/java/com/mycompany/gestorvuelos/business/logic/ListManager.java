@@ -2,6 +2,7 @@ package com.mycompany.gestorvuelos.business.logic;
 
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
+import com.mycompany.gestorvuelos.dto.VueloBase;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,15 +19,30 @@ public class ListManager
      * Obtiene el aeropuerto correspondiente al codigo IATA especificado.
      * @param codigoIATA Código identificador del aeropuerto.
      * @return Aeropuerto correspondiente al codigo IATA.
-     * @see Aeropuerto
      * @throws NoSuchElementException Si no existe aeropuerto con tal código IATA.
+     * @see Aeropuerto
      */
     public static Aeropuerto getAeropuertoByCodigoIATA(String codigoIATA) throws NoSuchElementException
     {
-        Optional<Aeropuerto> aeropuerto = Util.getListAeropuertos().stream()
+        return Util.getListAeropuertos().stream()
                 .filter(a -> a.getCodigoIATA().equals(codigoIATA))
-                .findFirst();
-        return aeropuerto.orElseThrow();
+                .findFirst()
+                .orElseThrow();
+    }
+    
+    /**
+     * Obtiene el vuelo base correspondiente al código de vuelo especificado.
+     * @param codigo Código identificador del vuelo base.
+     * @return Vuelo base correspondiente al código de vuelo.
+     * @throws NoSuchElementException Si no existe vuelo base con tal código de vuelo.
+     * @see VueloBase
+     */
+    public static VueloBase getVueloBaseByCodigo(String codigo) throws NoSuchElementException
+    {
+        return Util.getListVueloBase().stream()
+                .filter(vb -> vb.getCodigo().equals(codigo))
+                .findFirst()
+                .orElseThrow();
     }
     
     /**

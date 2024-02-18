@@ -372,7 +372,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
 
         pDireccionSedeCentral.add(pDireccionSedeCentralInput);
 
-        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout());
 
         lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
         lDireccionSedeCentralWarning.setText("Warning message");
