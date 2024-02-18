@@ -175,7 +175,6 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         return compania;
     }
     
-    // TODO - Evitar modificador público.
     /**
      * Rellena los campos correspondientes del panel pCompaniaDetails con
      * los datos de la compañías especificada.
@@ -209,9 +208,67 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
      */
     private boolean allFieldsAreValid()
     {
-        return lDireccionSedeCentralWarning.getText().isEmpty() &&
-                lTelefonoATAWarning.getText().isEmpty() &&
-                lTelefonoATCWarning.getText().isEmpty();
+        return allOrNonFilled()
+                && lDireccionSedeCentralWarning.getText().isEmpty()
+                && lMunicipioSedeCentralWarning.getText().isEmpty()
+                && lTelefonoATAWarning.getText().isEmpty()
+                && lTelefonoATCWarning.getText().isEmpty();
+    }
+    
+    /**
+     * Comprueba que todos los campos opcionales esten vacíos o rellenados.
+     * Esto es un requisito para su posterior almacenamiento y recuperación de
+     * los archivos CSV.
+     * @return Verdadero si todos los campos opcionales están vacíos o rellenados,
+     * falso en su defecto.
+     */
+    private boolean allOrNonFilled()
+    {
+        // Todos los campos están vacíos.
+        if (tfDireccionSedeCentral.getText().isEmpty()
+                && cbMunicipioSedeCentral.getSelectedIndex() == -1
+                && tfTelefonoATA.getText().isEmpty()
+                && tfTelefonoATC.getText().isEmpty()) {
+            
+            // Vaciar violaciones de validación.
+            lDireccionSedeCentralWarning.setText("");
+            lMunicipioSedeCentralWarning.setText("");
+            lTelefonoATAWarning.setText("");
+            lTelefonoATCWarning.setText("");
+            
+            return true;
+        }
+        // Todos los campos están rellenados.
+        else if (!tfDireccionSedeCentral.getText().isEmpty()
+                && cbMunicipioSedeCentral.getSelectedIndex() != -1
+                && !tfTelefonoATA.getText().isEmpty()
+                && !tfTelefonoATC.getText().isEmpty()) {
+            
+            // Vaciar violaciones de validación.
+            lDireccionSedeCentralWarning.setText("");
+            lMunicipioSedeCentralWarning.setText("");
+            lTelefonoATAWarning.setText("");
+            lTelefonoATCWarning.setText("");
+            
+            return true;
+        }
+
+        // Mostrar violación de validación para los campos no rellenados.
+        String warningMessage = "Campo obligatorio";
+        if (tfDireccionSedeCentral.getText().isEmpty()) {
+            lDireccionSedeCentralWarning.setText(warningMessage);
+        }
+        if (cbMunicipioSedeCentral.getSelectedIndex() == -1) {
+            lMunicipioSedeCentralWarning.setText(warningMessage);
+        }
+        if (tfTelefonoATA.getText().isEmpty()) {
+            lTelefonoATAWarning.setText(warningMessage);
+        }
+        if (tfTelefonoATC.getText().isEmpty()) {
+            lTelefonoATCWarning.setText(warningMessage);
+        }
+
+        return false;
     }
     
     /**
@@ -274,6 +331,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         pMunicipioSedeCentral = new javax.swing.JPanel();
         lMunicipioSedeCentral = new javax.swing.JLabel();
         cbMunicipioSedeCentral = new javax.swing.JComboBox<>();
+        lMunicipioSedeCentralWarning = new javax.swing.JLabel();
         pTelefonoATA = new javax.swing.JPanel();
         pTelefonoATASub = new javax.swing.JPanel();
         lTelefonoATA = new javax.swing.JLabel();
@@ -362,7 +420,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
 
         pDireccionSedeCentral.add(pDireccionSedeCentralInput);
 
-        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout());
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
 
         lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
         lDireccionSedeCentralWarning.setText("Warning message");
@@ -379,10 +437,24 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         lMunicipioSedeCentral.setText("Municipio sede central:");
         pMunicipioSedeCentral.add(lMunicipioSedeCentral);
 
+        cbMunicipioSedeCentral.setMinimumSize(new java.awt.Dimension(240, 26));
+        cbMunicipioSedeCentral.setPreferredSize(new java.awt.Dimension(240, 26));
         String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);
         cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<>(municipioSedeCentralItems));
         cbMunicipioSedeCentral.setSelectedItem(null);
+        cbMunicipioSedeCentral.addItemListener(new java.awt.event.ItemListener()
+        {
+            public void itemStateChanged(java.awt.event.ItemEvent evt)
+            {
+                cbMunicipioSedeCentralItemStateChanged(evt);
+            }
+        });
         pMunicipioSedeCentral.add(cbMunicipioSedeCentral);
+
+        lMunicipioSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
+        lMunicipioSedeCentralWarning.setText("Warning message");
+        lMunicipioSedeCentralWarning.setText("");
+        pMunicipioSedeCentral.add(lMunicipioSedeCentralWarning);
 
         pData.add(pMunicipioSedeCentral);
 
@@ -564,6 +636,11 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         registerNewCompaniaDialog.setVisible(true);
     }//GEN-LAST:event_bRegisterCompaniaActionPerformed
 
+    private void cbMunicipioSedeCentralItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cbMunicipioSedeCentralItemStateChanged
+    {//GEN-HEADEREND:event_cbMunicipioSedeCentralItemStateChanged
+        checkIfFormularyIsValid();
+    }//GEN-LAST:event_cbMunicipioSedeCentralItemStateChanged
+
     /**
      * @param args the command line arguments
      */
@@ -610,6 +687,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     private javax.swing.JLabel lDireccionSedeCentral;
     private javax.swing.JLabel lDireccionSedeCentralWarning;
     private javax.swing.JLabel lMunicipioSedeCentral;
+    private javax.swing.JLabel lMunicipioSedeCentralWarning;
     private javax.swing.JLabel lNombre;
     private javax.swing.JLabel lPrefijo;
     private javax.swing.JLabel lTelefonoATA;

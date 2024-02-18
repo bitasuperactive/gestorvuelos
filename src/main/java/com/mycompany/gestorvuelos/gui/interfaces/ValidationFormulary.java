@@ -2,7 +2,7 @@ package com.mycompany.gestorvuelos.gui.interfaces;
 
 /**
  * Los formularios que requieran ser validados deben implementar 
- * un método que permita comprobar si existen violaciones de validación.
+ * una función que permita comprobar si existen violaciones de validación.
  */
 public interface ValidationFormulary
 {

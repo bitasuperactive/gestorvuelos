@@ -14,7 +14,6 @@ import com.mycompany.gestorvuelos.gui.validation.Unique;
  * Almacena todos los datos referentes a la compañia aerea con sus
  * correspondientes etiquetas de validación.
  */
-// TODO - ESTABLECER OBLIGATORIEDAD DE LOS CAMPOS OPCIONALES SI SE RELLENA ALGUNO DE ELLOS.
 public class Compania
 {
     /**
@@ -143,7 +142,7 @@ public class Compania
             return false;
         }
         Compania companiaToCompare = (Compania) obj;
-        return prefijo == companiaToCompare.prefijo &&
+        return Objects.equals(prefijo, companiaToCompare.prefijo) &&
                Objects.equals(codigo, companiaToCompare.codigo) &&
                Objects.equals(nombre, companiaToCompare.nombre) &&
                Objects.equals(direccionSedeCentral, companiaToCompare.direccionSedeCentral) &&

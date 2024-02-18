@@ -13,8 +13,6 @@ import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
 
 /**
  * Validador en tiempo real del input del usuario para los datos de las compañías.
- * <br> (!) Clase descartada al no encontrar una forma eficiente de enviar los mensajes 
- * del validador a la igu.
  */
 public class CompaniaValidatorDocumentListener implements DocumentListener
 {
@@ -22,29 +20,33 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
     private ValidationFormulary parent;
     private String attrName;
     private JLabel violationLabel;
-    private Class<?> fieldType;
+    private final Class<?> fieldType;
 
     /**
-     * Valida el atributo vinculado al documento al actualizar su contenido.
+     * Valida el atributo de la compañía vinculado al documento al actualizar 
+     * su contenido.
      * @param parent Padre del componente que implimenta la clase.
-     * @param attrName Nombre del atributo vinculado al documento que contiene las etiquetas de validación.
+     * @param attrName Nombre del atributo de la compañía vinculado al documento
+     * que contiene las etiquetas de validación.
      * @param violationLabel Etiqueta en la que se mostraran los mensajes de error
      * de validación del atributo.
+     * @throws IllegalArgumentException Si el atributo de la compañía no existe.
      * @see Compania
      */
-    public CompaniaValidatorDocumentListener(ValidationFormulary parent, String attrName, JLabel violationLabel)
+    public CompaniaValidatorDocumentListener(ValidationFormulary parent, String attrName, JLabel violationLabel) throws IllegalArgumentException
     {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
         this.parent = parent;
         this.attrName = attrName;
         this.violationLabel = violationLabel;
         
-        // Obtenemos el tipo de dato del campo.
         try {
+            // Obtenemos el tipo de dato del campo.
             fieldType = Compania.class.getDeclaredField(attrName).getType();
         } catch (NoSuchFieldException ex) {
-            fieldType = null;
-            ex.printStackTrace();
+            throw new IllegalArgumentException(
+                    String.format("El campo %s no existe.", attrName), 
+                    ex);
         }
     }
 
