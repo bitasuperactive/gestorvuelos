@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.gui.logic;
+package com.mycompany.gestorvuelos.gui.enums;
 
 /**
  * Campos de filtrado permitidos para una lista de compañías.

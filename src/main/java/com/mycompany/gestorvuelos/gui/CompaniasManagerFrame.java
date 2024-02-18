@@ -2,7 +2,7 @@ package com.mycompany.gestorvuelos.gui;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum;
+import com.mycompany.gestorvuelos.gui.enums.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.business.logic.Util;
 import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
@@ -487,7 +487,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         pBuscador.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscador"));
         pBuscador.setLayout(new java.awt.BorderLayout(10, 0));
 
-        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum.valuesToString()));
+        cbCompaniaSearchType.setModel(new DefaultComboBoxModel<>(com.mycompany.gestorvuelos.gui.enums.CompaniaSearchTypeEnum.valuesToString()));
         cbCompaniaSearchType.setSelectedItem(CompaniaSearchTypeEnum.NOMBRE.toString());
         cbCompaniaSearchType.addActionListener(new java.awt.event.ActionListener()
         {

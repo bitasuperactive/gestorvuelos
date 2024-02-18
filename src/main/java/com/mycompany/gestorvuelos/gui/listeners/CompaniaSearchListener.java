@@ -2,7 +2,7 @@ package com.mycompany.gestorvuelos.gui.listeners;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum;
+import com.mycompany.gestorvuelos.gui.enums.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.business.logic.ListManager;
 import com.mycompany.gestorvuelos.business.logic.Util;
 import java.util.ArrayList;
