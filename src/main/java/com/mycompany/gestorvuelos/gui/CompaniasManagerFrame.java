@@ -2,7 +2,6 @@ package com.mycompany.gestorvuelos.gui;
 
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
-import com.mycompany.gestorvuelos.gui.listeners.CompaniaListSelectionListener;
 import com.mycompany.gestorvuelos.gui.logic.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.business.logic.Util;
@@ -13,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.AbstractDocument;
 
 /**
@@ -42,42 +41,6 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         } catch (NullPointerException ex) {
             // No se ha seleccionado ninguna compañía.
         }
-    }
-    
-    // TODO - Evitar modificador público.
-    /**
-     * Rellena los campos correspondientes del panel pCompaniaDetails con
-     * los datos de la compañías especificada.
-     * @param compania Compañía a mostrar.
-     */
-    public void fillCompaniaDetails(Compania compania)
-    {
-        // Habilitamos los botones del panel pCompaniaDetails si compania no es null.
-        bSaveChangesCompania.setEnabled(compania != null);
-        bShutdownCompania.setEnabled(compania != null);
-        
-        // Si compania es null utilizamos el constructor por defecto.
-        compania = (compania == null) ? new Compania() : compania;
-        
-        tfPrefijo.setText(String.valueOf(compania.getPrefijo()));
-        tfCodigo.setText(compania.getCodigo());
-        tfNombre.setText(compania.getNombre());
-        tfDireccionSedeCentral.setText(compania.getDireccionSedeCentral());
-        
-        Object municipio = compania.getMunicipioSedeCentral().isEmpty() ? null : compania.getMunicipioSedeCentral();
-        cbMunicipioSedeCentral.setSelectedItem(municipio);
-        
-        tfTelefonoATC.setText(compania.getTelefonoATC());
-        tfTelefonoATA.setText(compania.getTelefonoATA());
-    }
-    
-    /**
-     * Obtiene el JTable que lista el registro de compañías.
-     * @return JTable de compañías.
-     */
-    public JTable getTableCompaniaResults()
-    {
-        return tCompaniaResults;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Constructor methods">
@@ -210,6 +173,33 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         }
         
         return compania;
+    }
+    
+    // TODO - Evitar modificador público.
+    /**
+     * Rellena los campos correspondientes del panel pCompaniaDetails con
+     * los datos de la compañías especificada.
+     * @param compania Compañía a mostrar.
+     */
+    private void fillCompaniaDetails(Compania compania)
+    {
+        // Habilitamos los botones del panel pCompaniaDetails si compania no es null.
+        bSaveChangesCompania.setEnabled(compania != null);
+        bShutdownCompania.setEnabled(compania != null);
+        
+        // Si compania es null utilizamos el constructor por defecto.
+        compania = (compania == null) ? new Compania() : compania;
+        
+        tfPrefijo.setText(String.valueOf(compania.getPrefijo()));
+        tfCodigo.setText(compania.getCodigo());
+        tfNombre.setText(compania.getNombre());
+        tfDireccionSedeCentral.setText(compania.getDireccionSedeCentral());
+        
+        Object municipio = compania.getMunicipioSedeCentral().isEmpty() ? null : compania.getMunicipioSedeCentral();
+        cbMunicipioSedeCentral.setSelectedItem(municipio);
+        
+        tfTelefonoATC.setText(compania.getTelefonoATC());
+        tfTelefonoATA.setText(compania.getTelefonoATA());
     }
     
     /**
@@ -477,7 +467,17 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
 
         tCompaniaResults.setModel(new CompaniaTableModel(Util.getListCompania(), true));
         tCompaniaResults.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tCompaniaResults.getSelectionModel().addListSelectionListener(new CompaniaListSelectionListener(this));
+        tCompaniaResults.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+            // Rellenamos el panel pCompaniaDetails con los datos de la compañía seleccionada.
+            CompaniaTableModel model = (CompaniaTableModel) tCompaniaResults.getModel();
+            Compania compania;
+            try {
+                compania = model.getCompaniaAt(tCompaniaResults.getSelectedRow());
+            } catch (IndexOutOfBoundsException ex) {
+                compania = null;
+            }
+            fillCompaniaDetails(compania);
+        });
         jScrollPane1.setViewportView(tCompaniaResults);
 
         pResults.add(jScrollPane1);

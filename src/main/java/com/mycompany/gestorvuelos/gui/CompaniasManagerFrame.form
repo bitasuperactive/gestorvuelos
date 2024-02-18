@@ -450,7 +450,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="tCompaniaResults.getSelectionModel().addListSelectionListener(new CompaniaListSelectionListener(this));"/>
+                    <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="tCompaniaResults.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -&gt; {&#xd;&#xa;    // Rellenamos el panel pCompaniaDetails con los datos de la compa&#xf1;&#xed;a seleccionada.&#xd;&#xa;    CompaniaTableModel model = (CompaniaTableModel) tCompaniaResults.getModel();&#xd;&#xa;    Compania compania;&#xd;&#xa;    try {&#xd;&#xa;        compania = model.getCompaniaAt(tCompaniaResults.getSelectedRow());&#xd;&#xa;    } catch (IndexOutOfBoundsException ex) {&#xd;&#xa;        compania = null;&#xd;&#xa;    }&#xd;&#xa;    fillCompaniaDetails(compania);&#xd;&#xa;});"/>
                     <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="CompaniasManagerFrame_tCompaniaResults"/>
                   </AuxValues>
                 </Component>
