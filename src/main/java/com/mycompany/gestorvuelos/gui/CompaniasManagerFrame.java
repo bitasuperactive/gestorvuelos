@@ -204,8 +204,8 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
      */
     private void fillCompaniaDetails(Compania compania)
     {
-        // Habilitamos el botón de baja de la compañía si esta no es nula.
-        // TODO - TESTEAR
+        // Habilitamos los botones de baja y guardar al seleccionar una compañía.
+        bSaveChangesCompania.setEnabled(compania != null);
         bShutdownCompania.setEnabled(compania != null);
         
         // Si compania es null utilizamos el constructor por defecto.

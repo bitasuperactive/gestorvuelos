@@ -1,4 +1,4 @@
-package com.mycompany.gestorvuelos.gui.validation;
+package com.mycompany.gestorvuelos.gui.validation.compania;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -18,7 +18,15 @@ import java.lang.annotation.Target;
 @Documented
 public @interface NonOrAllOptionalFields
 {
-    String message() default "Los campos opcionales deben estar o todos vacíos o todos rellenados.";
+    String message() default """
+                             Los campos opcionales:
+                                - Dirección de la sede central
+                                - Municipio de la sede central
+                                - Teléfono de atención al aeropuerto
+                                - Teléfono de atención al cliente
+                             
+                             Deben estar vacíos o correctamente rellenados.
+                             """;
     
     Class<?>[] groups() default {};
     

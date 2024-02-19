@@ -1,13 +1,13 @@
 package com.mycompany.gestorvuelos.dto;
 
 import com.mycompany.gestorvuelos.gui.interfaces.MonoChecks;
-import com.mycompany.gestorvuelos.gui.validation.NonOrAllOptionalFields;
+import com.mycompany.gestorvuelos.gui.validation.compania.NonOrAllOptionalFields;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Objects;
-import com.mycompany.gestorvuelos.gui.validation.Prefijo;
-import com.mycompany.gestorvuelos.gui.validation.Codigo;
+import com.mycompany.gestorvuelos.gui.validation.compania.Prefijo;
+import com.mycompany.gestorvuelos.gui.validation.compania.Codigo;
 import jakarta.validation.constraints.Digits;
 
 /**
@@ -19,7 +19,7 @@ public class Compania
 {
     /**
      * Identificador único de la compañía.
-     * @see com.mycompany.gestorvuelos.gui.validation.Prefijo
+     * @see com.mycompany.gestorvuelos.gui.validation.compania.Prefijo
      */
     @Digits(integer = 3, fraction = 0, groups = MonoChecks.class)
     @Prefijo(groups = MonoChecks.class)
@@ -27,7 +27,7 @@ public class Compania
     
     /**
      * Identificador único inscrito en la IATA.
-     * @see com.mycompany.gestorvuelos.gui.validation.Codigo
+     * @see com.mycompany.gestorvuelos.gui.validation.compania.Codigo
      */
     @Size(max = 2, groups = MonoChecks.class)
     @Codigo(groups = MonoChecks.class)
