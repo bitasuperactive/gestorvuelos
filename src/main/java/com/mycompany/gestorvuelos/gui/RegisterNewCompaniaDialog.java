@@ -8,7 +8,6 @@ import com.mycompany.gestorvuelos.business.logic.Util;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.text.AbstractDocument;
-import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
 import com.mycompany.gestorvuelos.business.logic.ComponentManager;
 import java.awt.Component;
 import java.awt.Container;
@@ -16,12 +15,17 @@ import java.util.List;
 import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import com.mycompany.gestorvuelos.gui.interfaces.CompaniaValidationFormulary;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 /**
  * Formulario validado de registro de compañías.
  */
-public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements ValidationFormulary
-{
+public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements CompaniaValidationFormulary
+{    
     /**
      * Crea un nuevo diálogo RegisterNewCompaniaDialog.
      * @param parent Padre del diálogo.
@@ -34,6 +38,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     {
         super(parent, modal);
         this.model = model;
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
         checkUtilsInitialized();
         initComponents();
         setLocationRelativeTo(parent);
@@ -42,9 +47,9 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     }
     
     @Override
-    public void checkIfFormularyIsValid()
+    public void fieldValidationDone()
     {
-        bRegisterCompania.setEnabled(allFieldsAreValid());
+        bRegisterCompania.setEnabled(monoChecksAreValid());
     }
     
     // <editor-fold defaultstate="collapsed" desc="Constructor methods">
@@ -100,7 +105,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     private void triggerDocumentListeners()
     {
         // Obtenemos todos los componentes del diálogo.
-        List<Component> components = ComponentManager.getAllComponents((Container) getComponents()[0]);
+        List<Component> components = ComponentManager.getAllComponents((Container) this.getComponents()[0]);
 
         // Extraemos solo los JTextFields.
         JTextField[] textFields = components.stream()
@@ -133,7 +138,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         try {
             compania = getCompaniaFromFields();
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(
+                    this, 
                     ex.getMessage(), 
                     this.getTitle(), 
                     JOptionPane.ERROR_MESSAGE);
@@ -155,49 +161,60 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
     
     /**
      * Comprueba que todas las etiquetas correspondientes a los mensajes de
-     * validación esten vacíos, confirmando que los campos del formulario son válidos.
+     * validación esten vacíos, confirmando que todos los campos del formulario 
+     * son válidos.
      * @return Verdadero si el formulario es válido, falso en su defecto.
      */
-    private boolean allFieldsAreValid()
+    private boolean monoChecksAreValid()
     {
-        return lPrefijoWarning.getText().isEmpty() &&
-                lCodigoWarning.getText().isEmpty() &&
-                lNombreWarning.getText().isEmpty() &&
-                lDireccionSedeCentralWarning.getText().isEmpty() &&
-                lTelefonoATAWarning.getText().isEmpty() &&
-                lTelefonoATCWarning.getText().isEmpty();
+        return lPrefijoWarning.getText().isEmpty()
+                && lCodigoWarning.getText().isEmpty()
+                && lNombreWarning.getText().isEmpty()
+                && lDireccionSedeCentralWarning.getText().isEmpty()
+                && lTelefonoATAWarning.getText().isEmpty()
+                && lTelefonoATCWarning.getText().isEmpty();
     }
     
     /**
-     * Crea una nueva compañía a partir de los campos rellenados en el formulario,
-     * solo si no existen violaciones de validación.
+     * Crea una nueva compañía a partir de los campos rellenados en el
+     * formulario, siempre que estos sean válidos.
      * @return Compañía validada.
      * @throws IllegalArgumentException Si existen violaciones de validación.
-     * @see allFieldsAreValid
      */
     private Compania getCompaniaFromFields() throws IllegalArgumentException
     {
-        if (!allFieldsAreValid()) {
+        // Comprobamos los MonoChecks.
+        if (!monoChecksAreValid()) {
             throw new IllegalArgumentException("Existen violaciones de validación en el formulario.");
         }
         
-        Short prefijo;
+        Compania compania = new Compania();
+        
         try {
-            prefijo = Short.valueOf(tfPrefijo.getText());
+            short prefijo = Short.parseShort(tfPrefijo.getText());
+            compania.setPrefijo(prefijo);
         } catch (NumberFormatException ex) {
-            prefijo = null;
+            throw new IllegalArgumentException("El tipo del prefijo no es válido.");
         }
-        String codigo = tfCodigo.getText();
-        String nombre = tfNombre.getText().trim();
-        String direccionSedeCentral = tfDireccionSedeCentral.getText().trim();
+        
+        compania.setCodigo(tfCodigo.getText());
+        compania.setNombre(tfNombre.getText());
+        compania.setDireccionSedeCentral(tfDireccionSedeCentral.getText());
         
         Object municipio = cbMunicipioSedeCentral.getSelectedItem();
-        String municipioSedeCentral = municipio == null ? "" : (String) municipio;
+        String municipioSedeCentral = (municipio == null) ? "" : (String) municipio;
+        compania.setMunicipioSedeCentral(municipioSedeCentral);
         
-        String telefonoATA = tfTelefonoATA.getText();
-        String telefonoATC = tfTelefonoATC.getText();
+        compania.setTelefonoATA(tfTelefonoATA.getText());
+        compania.setTelefonoATC(tfTelefonoATC.getText());
         
-        return new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
+        // Validamos @NonOrAllOptionalFields.
+        Set<ConstraintViolation<Compania>> violations = validator.validate(compania);
+        if (!violations.isEmpty()) {
+            throw new IllegalArgumentException(violations.iterator().next().getMessage());
+        }
+        
+        return compania;
     }
 
     @SuppressWarnings("unchecked")
@@ -290,7 +307,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
 
         pCodigo.add(pCodigoInput);
 
-        pCodigoWarning.setLayout(new java.awt.CardLayout(5, 0));
+        pCodigoWarning.setLayout(new java.awt.CardLayout());
 
         lCodigoWarning.setForeground(new java.awt.Color(204, 51, 0));
         lCodigoWarning.setText("Warning message");
@@ -316,7 +333,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
 
         pNombre.add(pNombreSub);
 
-        pNombreWarning.setLayout(new java.awt.CardLayout(5, 0));
+        pNombreWarning.setLayout(new java.awt.CardLayout());
 
         lNombreWarning.setForeground(new java.awt.Color(204, 51, 0));
         lNombreWarning.setText("Warning message");
@@ -350,7 +367,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
 
         pDireccionSedeCentral.add(pDireccionSedeCentralInput);
 
-        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout());
 
         lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
         lDireccionSedeCentralWarning.setText("Warning message");
@@ -367,6 +384,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         lMunicipioSedeCentral.setText("Municipio sede central:");
         pMunicipioSedeCentral.add(lMunicipioSedeCentral);
 
+        cbMunicipioSedeCentral.setMinimumSize(new java.awt.Dimension(240, 26));
+        cbMunicipioSedeCentral.setPreferredSize(new java.awt.Dimension(240, 26));
         String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);
         cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<>(municipioSedeCentralItems));
         cbMunicipioSedeCentral.setSelectedItem(null);
@@ -475,6 +494,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Va
         registerCompania();
     }//GEN-LAST:event_bRegisterCompaniaActionPerformed
 
+    private final Validator validator;
     private final CompaniaTableModel model;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;

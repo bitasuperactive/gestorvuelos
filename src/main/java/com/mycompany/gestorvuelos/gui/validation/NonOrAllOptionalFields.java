@@ -9,16 +9,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * El elemento anotado debe ser un valor único para el prefijo o código de las
- * compañías registradas.
+ * Valida que todos los campos opcionales de la compañía ("direccionSedeCentral",
+ * "municipioSedeCentral", "telefonoATA" y "telefonoATC") estén vacíos o rellenados.
  */
-@Target(ElementType.FIELD)
-@Constraint(validatedBy = { UniquePrefijoValidator.class, UniqueCodigoValidator.class })
+@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+@Constraint(validatedBy = { NonOrAllOptionalFieldsValidator.class })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Unique
+public @interface NonOrAllOptionalFields
 {
-    String message() default "Este identificador ya está registrado";
+    String message() default "Los campos opcionales deben estar o todos vacíos o todos rellenados.";
     
     Class<?>[] groups() default {};
     

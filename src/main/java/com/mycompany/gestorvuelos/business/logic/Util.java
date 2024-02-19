@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Almacena las variables estáticas necesarias para el proyecto. Requiere
- * inicializar estas variables mediante el método initUtils.
+ * inicializar estas variables mediante la función initUtils.
  * @see initUtils
  */
 public class Util

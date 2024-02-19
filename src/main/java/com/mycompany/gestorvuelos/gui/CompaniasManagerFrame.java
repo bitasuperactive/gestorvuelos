@@ -5,7 +5,6 @@ import com.mycompany.gestorvuelos.gui.models.CompaniaTableModel;
 import com.mycompany.gestorvuelos.gui.enums.CompaniaSearchTypeEnum;
 import com.mycompany.gestorvuelos.gui.logic.MaxCharsDocumentFilter;
 import com.mycompany.gestorvuelos.business.logic.Util;
-import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
 import com.mycompany.gestorvuelos.gui.listeners.CompaniaValidatorDocumentListener;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -14,30 +13,36 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.AbstractDocument;
+import com.mycompany.gestorvuelos.gui.interfaces.CompaniaValidationFormulary;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 /**
  * Formulario de gestión de compañías aéreas.
  */
-public class CompaniasManagerFrame extends javax.swing.JFrame implements ValidationFormulary
+public class CompaniasManagerFrame extends javax.swing.JFrame implements CompaniaValidationFormulary
 {
     /**
      * Crea un nuevo formulario CompaniasManagerFrame.
      */
     public CompaniasManagerFrame()
     {
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
         initUtils();
         initComponents();
         setupDocumentListeners();
     }
     
     @Override
-    public void checkIfFormularyIsValid()
+    public void fieldValidationDone()
     {
         // Habilitamos el botón guardar cambios si hay una compañía seleccionada
         // y todos los campos son válidos.
         try {
             getSelectedCompania();
-            bSaveChangesCompania.setEnabled(allFieldsAreValid());
+            bSaveChangesCompania.setEnabled(monoChecksAreValid());
         } catch (NullPointerException ex) {
             // No se ha seleccionado ninguna compañía.
         }
@@ -50,7 +55,8 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
             // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
             Util.initUtils("ABC");
         } catch (IOException | IllegalArgumentException ex) {
-            Logger.getLogger(CompaniasManagerFrame.class.getName()).log(Level.SEVERE, 
+            Logger.getLogger(
+                    CompaniasManagerFrame.class.getName()).log(Level.SEVERE, 
                     "Excepción de inicialización.", 
                     ex);
             this.dispose();
@@ -85,72 +91,87 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     // <editor-fold defaultstate="collapsed" desc="Button methods">
     /**
      * Guarda los cámbios realizados sobre la compañía seleccionada.
-     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
      * @see getSelectedCompania
      * @see getCompaniaFromFields
      * @see Compania#override(Compania)
      */
-    private void saveChangesToCompania() throws NullPointerException
+    private void saveChangesToCompania()
     {
-        // Obtenemos la compañía seleccionada.
-        Compania selectedCompania = getSelectedCompania();
-        
-        // Generamos una nueva compañía validada a partir de los datos modificados.
+        Compania selectedCompania;
         Compania newCompania;
+        String dialogMessage;
+        
         try {
+            // Obtenemos la compañía seleccionada.
+            selectedCompania = getSelectedCompania();
+            // Generamos una nueva compañía validada a partir de los datos modificados.
             newCompania = getCompaniaFromFields();
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, 
+        } catch (NullPointerException | IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(
+                    this, 
                     ex.getMessage(), 
                     this.getTitle(), 
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Comprobamos si han habido cambios.
-        if (selectedCompania.equals(newCompania))
-        {
-            JOptionPane.showMessageDialog(this, "No se ha realizado ningún cambio.",
-                    this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
-            return;
+        // Guardamos los datos validados en la compañía seleccionada si
+        // se ha realizado algún cambios.
+        if (!selectedCompania.equals(newCompania)) {
+            selectedCompania.override(newCompania);
+            
+            dialogMessage = String.format(
+                "Compañía [ %s ] modificada con éxito.", 
+                selectedCompania.getNombre());
+        } else {
+            dialogMessage = "No se ha realizado ningún cambio.";
         }
         
-        // Guardamos los datos validados en la compañía seleccionada.
-        selectedCompania.override(newCompania);
-        
-        String message = String.format("Compañía [ %s ] modificada con éxito.", 
-                selectedCompania.getNombre());
-        JOptionPane.showMessageDialog(this, message,
-                this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this, 
+                dialogMessage,
+                this.getTitle(), 
+                JOptionPane.INFORMATION_MESSAGE);
     }
     
     /**
      * Elimina al compañía seleccionada del listado de compañías.
-     * @throws NullPointerException Si no se ha seleccionado ninguna compañía del listado.
+     * @throws IndexOutOfBoundsException Si la compañía a dar de baja no existe
+     * en el modelo de la tabla.
      * @see getSelectedCompania
      * @see CompaniaTableModel#removeCompania(com.mycompany.gestorvuelos.dto.Compania)
      */
-    private void shutdownCompania() throws NullPointerException
+    private void shutdownCompania() throws IndexOutOfBoundsException
     {
         // Obtenemos compañía seleccionada.
-        Compania compania = getSelectedCompania();
+        Compania compania;
+        try {
+            compania = getSelectedCompania();
+        } catch (NullPointerException ex) {
+            JOptionPane.showMessageDialog(
+                    this, 
+                    ex.getMessage(), 
+                    this.getTitle(), 
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         String nombreCompania = compania.getNombre();
         
+        // La eliminamos del modelo de la tabla.
         var model = (CompaniaTableModel) tCompaniaResults.getModel();
-        try {
-            model.removeCompania(compania);
-        } catch (IndexOutOfBoundsException ex) {
-            throw ex;
-        }
+        model.removeCompania(compania);
 
-        // Vaciar los detalles de la compañía.
+        // Vaciamos el formulario.
         fillCompaniaDetails(null);
         
-        String message = String.format("Compañía [ %s ] dada de baja con éxito.", 
+        String message = String.format(
+                "Compañía [ %s ] dada de baja con éxito.", 
                 nombreCompania);
-        JOptionPane.showMessageDialog(this, message, 
-                this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this, message, 
+                this.getTitle(), 
+                JOptionPane.INFORMATION_MESSAGE);
     }
     // </editor-fold>
 
@@ -167,8 +188,8 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         try {
             compania = companiaTableModel.getCompaniaAt(tCompaniaResults.getSelectedRow());
         } catch (IndexOutOfBoundsException ex) {
-            // En caso de no haber una compañía seleccionada, 
-            // los botones deberían estar deshabilitados.
+            // En caso de no haber una compañía seleccionada, los botones 
+            // deberían estar deshabilitados.
             throw new NullPointerException("No se ha seleccionado ninguna compañía de la tabla.");
         }
         
@@ -176,20 +197,22 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     }
     
     /**
-     * Rellena los campos correspondientes del panel pCompaniaDetails con
-     * los datos de la compañías especificada.
-     * @param compania Compañía a mostrar.
+     * Rellena el formulario con los detalles de la compañía especificada.
+     * Llamado cuando el usuario modifica la selección en la tabla de compañías
+     * disponibles.
+     * @param compania Compañía a detallar.
      */
     private void fillCompaniaDetails(Compania compania)
     {
-        // Habilitamos los botones del panel pCompaniaDetails si compania no es null.
-        bSaveChangesCompania.setEnabled(compania != null);
+        // Habilitamos el botón de baja de la compañía si esta no es nula.
+        // TODO - TESTEAR
         bShutdownCompania.setEnabled(compania != null);
         
         // Si compania es null utilizamos el constructor por defecto.
         compania = (compania == null) ? new Compania() : compania;
         
-        tfPrefijo.setText(String.valueOf(compania.getPrefijo()));
+        String prefijo = String.valueOf(compania.getPrefijo());
+        tfPrefijo.setText(prefijo);
         tfCodigo.setText(compania.getCodigo());
         tfNombre.setText(compania.getNombre());
         tfDireccionSedeCentral.setText(compania.getDireccionSedeCentral());
@@ -203,111 +226,59 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     
     /**
      * Comprueba que todas las etiquetas correspondientes a los mensajes de
-     * validación esten vacíos, confirmando que los campos del formulario son válidos.
+     * validación esten vacíos, confirmando que todos los campos del formulario
+     * son válidos.
      * @return Verdadero si el formulario es valido, falso en su defecto.
      */
-    private boolean allFieldsAreValid()
+    private boolean monoChecksAreValid()
     {
-        return allOrNonFilled()
-                && lDireccionSedeCentralWarning.getText().isEmpty()
-                && lMunicipioSedeCentralWarning.getText().isEmpty()
+        return lDireccionSedeCentralWarning.getText().isEmpty()
                 && lTelefonoATAWarning.getText().isEmpty()
                 && lTelefonoATCWarning.getText().isEmpty();
     }
     
     /**
-     * Comprueba que todos los campos opcionales esten vacíos o rellenados.
-     * Esto es un requisito para su posterior almacenamiento y recuperación de
-     * los archivos CSV.
-     * @return Verdadero si todos los campos opcionales están vacíos o rellenados,
-     * falso en su defecto.
-     */
-    private boolean allOrNonFilled()
-    {
-        // Todos los campos están vacíos.
-        if (tfDireccionSedeCentral.getText().isEmpty()
-                && cbMunicipioSedeCentral.getSelectedIndex() == -1
-                && tfTelefonoATA.getText().isEmpty()
-                && tfTelefonoATC.getText().isEmpty()) {
-            
-            // Vaciar violaciones de validación.
-            lDireccionSedeCentralWarning.setText("");
-            lMunicipioSedeCentralWarning.setText("");
-            lTelefonoATAWarning.setText("");
-            lTelefonoATCWarning.setText("");
-            
-            return true;
-        }
-        // Todos los campos están rellenados.
-        else if (!tfDireccionSedeCentral.getText().isEmpty()
-                && cbMunicipioSedeCentral.getSelectedIndex() != -1
-                && !tfTelefonoATA.getText().isEmpty()
-                && !tfTelefonoATC.getText().isEmpty()) {
-            
-            // Vaciar violaciones de validación.
-            lDireccionSedeCentralWarning.setText("");
-            lMunicipioSedeCentralWarning.setText("");
-            lTelefonoATAWarning.setText("");
-            lTelefonoATCWarning.setText("");
-            
-            return true;
-        }
-
-        // Mostrar violación de validación para los campos no rellenados.
-        String warningMessage = "Campo obligatorio";
-        if (tfDireccionSedeCentral.getText().isEmpty()) {
-            lDireccionSedeCentralWarning.setText(warningMessage);
-        }
-        if (cbMunicipioSedeCentral.getSelectedIndex() == -1) {
-            lMunicipioSedeCentralWarning.setText(warningMessage);
-        }
-        if (tfTelefonoATA.getText().isEmpty()) {
-            lTelefonoATAWarning.setText(warningMessage);
-        }
-        if (tfTelefonoATC.getText().isEmpty()) {
-            lTelefonoATCWarning.setText(warningMessage);
-        }
-
-        return false;
-    }
-    
-    /**
-     * Crea una nueva compañía a partir de los campos rellenados en el panel
-     * pCompaniaDetails. Los campos deben ser válidos.
+     * Crea una nueva compañía a partir de los campos rellenados en el
+     * formulario, siempre que estos sean válidos.
      * @return Compañía validada.
-     * @throws IllegalArgumentException Si existen violaciones de validación en el formulario.
+     * @throws IllegalArgumentException Si existen violaciones de validación.
      */
     private Compania getCompaniaFromFields() throws IllegalArgumentException
     {
-        if (!allFieldsAreValid()) {
+        // Comprobamos los MonoChecks.
+        if (!monoChecksAreValid()) {
             throw new IllegalArgumentException("Existen violaciones de validación en el formulario.");
         }
         
-        Short prefijo;
+        Compania compania = new Compania();
+        
         try {
-            prefijo = Short.valueOf(tfPrefijo.getText());
+            short prefijo = Short.parseShort(tfPrefijo.getText());
+            compania.setPrefijo(prefijo);
         } catch (NumberFormatException ex) {
-            prefijo = null;
+            throw new IllegalArgumentException("El tipo del prefijo no es válido.");
         }
         
-        String codigo = tfCodigo.getText();
-        String nombre = tfNombre.getText();
-        String direccionSedeCentral = tfDireccionSedeCentral.getText();
+        compania.setCodigo(tfCodigo.getText());
+        compania.setNombre(tfNombre.getText());
+        compania.setDireccionSedeCentral(tfDireccionSedeCentral.getText());
         
         Object municipio = cbMunicipioSedeCentral.getSelectedItem();
-        String municipioSedeCentral = municipio == null ? "" : (String) municipio;
+        String municipioSedeCentral = (municipio == null) ? "" : (String) municipio;
+        compania.setMunicipioSedeCentral(municipioSedeCentral);
         
-        String telefonoATA = tfTelefonoATA.getText();
-        String telefonoATC = tfTelefonoATC.getText();
+        compania.setTelefonoATA(tfTelefonoATA.getText());
+        compania.setTelefonoATC(tfTelefonoATC.getText());
         
-        return new Compania(prefijo, codigo, nombre, direccionSedeCentral, municipioSedeCentral, telefonoATA, telefonoATC);
+        // Validamos @NonOrAllOptionalFields.
+        Set<ConstraintViolation<Compania>> violations = validator.validate(compania);
+        if (!violations.isEmpty()) {
+            throw new IllegalArgumentException(violations.iterator().next().getMessage());
+        }
+        
+        return compania;
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -331,7 +302,6 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         pMunicipioSedeCentral = new javax.swing.JPanel();
         lMunicipioSedeCentral = new javax.swing.JLabel();
         cbMunicipioSedeCentral = new javax.swing.JComboBox<>();
-        lMunicipioSedeCentralWarning = new javax.swing.JLabel();
         pTelefonoATA = new javax.swing.JPanel();
         pTelefonoATASub = new javax.swing.JPanel();
         lTelefonoATA = new javax.swing.JLabel();
@@ -420,7 +390,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
 
         pDireccionSedeCentral.add(pDireccionSedeCentralInput);
 
-        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout(5, 0));
+        pDireccionSedeCentralWarning.setLayout(new java.awt.CardLayout());
 
         lDireccionSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
         lDireccionSedeCentralWarning.setText("Warning message");
@@ -442,19 +412,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         String[] municipioSedeCentralItems = Util.getMapMunicipios().keySet().toArray(new String[0]);
         cbMunicipioSedeCentral.setModel(new DefaultComboBoxModel<>(municipioSedeCentralItems));
         cbMunicipioSedeCentral.setSelectedItem(null);
-        cbMunicipioSedeCentral.addItemListener(new java.awt.event.ItemListener()
-        {
-            public void itemStateChanged(java.awt.event.ItemEvent evt)
-            {
-                cbMunicipioSedeCentralItemStateChanged(evt);
-            }
-        });
         pMunicipioSedeCentral.add(cbMunicipioSedeCentral);
-
-        lMunicipioSedeCentralWarning.setForeground(new java.awt.Color(204, 51, 0));
-        lMunicipioSedeCentralWarning.setText("Warning message");
-        lMunicipioSedeCentralWarning.setText("");
-        pMunicipioSedeCentral.add(lMunicipioSedeCentralWarning);
 
         pData.add(pMunicipioSedeCentral);
 
@@ -621,6 +579,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
 
     private void cbCompaniaSearchTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cbCompaniaSearchTypeActionPerformed
     {//GEN-HEADEREND:event_cbCompaniaSearchTypeActionPerformed
+        // Limpiar búsqueda.
         tfCompaniaSearcher.setText("");
     }//GEN-LAST:event_cbCompaniaSearchTypeActionPerformed
 
@@ -628,22 +587,13 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     {//GEN-HEADEREND:event_bRegisterCompaniaActionPerformed
         // Limpiar selección de la tabla.
         tCompaniaResults.clearSelection();
-        
-        RegisterNewCompaniaDialog registerNewCompaniaDialog = 
-                new RegisterNewCompaniaDialog(this, 
-                        true, 
-                        (CompaniaTableModel) tCompaniaResults.getModel());
-        registerNewCompaniaDialog.setVisible(true);
+        new RegisterNewCompaniaDialog(
+                this,
+                true,
+                (CompaniaTableModel) tCompaniaResults.getModel()
+        ).setVisible(true);
     }//GEN-LAST:event_bRegisterCompaniaActionPerformed
 
-    private void cbMunicipioSedeCentralItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cbMunicipioSedeCentralItemStateChanged
-    {//GEN-HEADEREND:event_cbMunicipioSedeCentralItemStateChanged
-        checkIfFormularyIsValid();
-    }//GEN-LAST:event_cbMunicipioSedeCentralItemStateChanged
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[])
     {
         /* Set the Nimbus look and feel */
@@ -676,6 +626,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
         });
     }
 
+    private final Validator validator;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bRegisterCompania;
     private javax.swing.JButton bSaveChangesCompania;
@@ -687,7 +638,6 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Validat
     private javax.swing.JLabel lDireccionSedeCentral;
     private javax.swing.JLabel lDireccionSedeCentralWarning;
     private javax.swing.JLabel lMunicipioSedeCentral;
-    private javax.swing.JLabel lMunicipioSedeCentralWarning;
     private javax.swing.JLabel lNombre;
     private javax.swing.JLabel lPrefijo;
     private javax.swing.JLabel lTelefonoATA;

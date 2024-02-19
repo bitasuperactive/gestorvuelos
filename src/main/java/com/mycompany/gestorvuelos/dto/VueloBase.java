@@ -7,6 +7,11 @@ import java.util.Date;
  */
 public class VueloBase
 {
+    /*
+    TODO - Los datos base serán completamente modificables mientras no haya 
+    un vuelo concreto. Si ya ha salido o llegado un vuelo en una fecha concreta 
+    no se podrá modificar ningún dato.
+    */
     /**
      * Crea un vuelo base sin datos.
      */

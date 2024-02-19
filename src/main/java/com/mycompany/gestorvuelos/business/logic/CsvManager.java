@@ -104,7 +104,7 @@ public class CsvManager
             
             // Los siguientes campos son opcionales pero deben estar o todos vacíos
             // o todos rellenados.
-            if (companiaData.length > 3) // TODO - Mejorar la recuperación de los datos de las compaías.
+            if (companiaData.length > 3)
             {
                 if (companiaData.length < 7)
                     throw new ArrayIndexOutOfBoundsException("Los valores opcionales estan incompletos.");

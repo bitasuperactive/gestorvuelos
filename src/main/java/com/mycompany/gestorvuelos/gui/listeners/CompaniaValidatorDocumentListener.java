@@ -9,15 +9,19 @@ import javax.swing.JLabel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import com.mycompany.gestorvuelos.gui.interfaces.ValidationFormulary;
+import com.mycompany.gestorvuelos.gui.interfaces.CompaniaValidationFormulary;
+import com.mycompany.gestorvuelos.gui.interfaces.MonoChecks;
 
 /**
- * Validador en tiempo real del input del usuario para los datos de las compañías.
+ * Validador en tiempo real del input del usuario para los campos de las compañías.
+ * Es un validador a nivel de atributo, utilizando el grupo MonoChecks.
+ * @see MonoChecks
  */
 public class CompaniaValidatorDocumentListener implements DocumentListener
 {
     private Validator validator;
-    private ValidationFormulary parent;
+    private final Class<?> validationType;
+    private CompaniaValidationFormulary parent;
     private String attrName;
     private JLabel violationLabel;
     private final Class<?> fieldType;
@@ -33,9 +37,10 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
      * @throws IllegalArgumentException Si el atributo de la compañía no existe.
      * @see Compania
      */
-    public CompaniaValidatorDocumentListener(ValidationFormulary parent, String attrName, JLabel violationLabel) throws IllegalArgumentException
+    public CompaniaValidatorDocumentListener(CompaniaValidationFormulary parent, String attrName, JLabel violationLabel) throws IllegalArgumentException
     {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
+        validationType = MonoChecks.class;
         this.parent = parent;
         this.attrName = attrName;
         this.violationLabel = violationLabel;
@@ -122,15 +127,15 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
 
         // Validamos el objeto en función de su tipo.
         if (value == null) {
-            violations = validator.validateValue(Compania.class, attrName, null);
+            violations = validator.validateValue(Compania.class, attrName, null, validationType);
         } else if (value instanceof String) {
             // Se requiere nulificar las cadenas vacías para evitar intromisiones
             // entre las etiquetas @NotBlank y @Pattern.
             String str = (String) value;
             value = (str.isEmpty()) ? null : str;
-            violations = validator.validateValue(Compania.class, attrName, value);
+            violations = validator.validateValue(Compania.class, attrName, value, validationType);
         } else if (value instanceof Short) {
-            violations = validator.validateValue(Compania.class, attrName, (Short) value);
+            violations = validator.validateValue(Compania.class, attrName, (Short) value, validationType);
         } else {
             throw new IllegalArgumentException("El tipo del dato no es compatible para la validación.");
         }
@@ -146,12 +151,12 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
     private void manageSuccessValidation()
     {
         violationLabel.setText("");
-        parent.checkIfFormularyIsValid();
+        parent.fieldValidationDone();
     }
     
     private void manageViolationMessage(String message)
     {
         violationLabel.setText(message);
-        parent.checkIfFormularyIsValid();
+        parent.fieldValidationDone();
     }
 }

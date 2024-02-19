@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * Valida que el código sea un valor único en las compañías registradas.
  * @see ListManager#isCompaniaCodigoUnique(java.lang.String)
  */
-public class UniqueCodigoValidator implements ConstraintValidator<Unique, String>
+public class CodigoValidator implements ConstraintValidator<Codigo, String>
 {
 
     @Override

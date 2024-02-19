@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * Valida que el prefijo sea un valor único en las compañías registradas.
  * @see ListManager#isCompaniaPrefijoUnique(short)
  */
-public class UniquePrefijoValidator implements ConstraintValidator<Unique, Short>
+public class PrefijoValidator implements ConstraintValidator<Prefijo, Short>
 {
 
     @Override

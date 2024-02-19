@@ -58,7 +58,6 @@ public class Aeropuerto
         this.codigoMunicipio = codigoMunicipio;
     }
 
-    // TODO - IMPLEMENTAR: Servirá para el servicio meteorológico.
     private String codigoIATA;
     private String nombre;
     // TODO - FORMATO: Se trata de una cadena de cinco caracteres numéricos. Si es internacional, el código será 00000.

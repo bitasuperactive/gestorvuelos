@@ -1,50 +1,36 @@
 package com.mycompany.gestorvuelos.dto;
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.mycompany.gestorvuelos.gui.interfaces.MonoChecks;
+import com.mycompany.gestorvuelos.gui.validation.NonOrAllOptionalFields;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Objects;
-import com.mycompany.gestorvuelos.gui.validation.Unique;
+import com.mycompany.gestorvuelos.gui.validation.Prefijo;
+import com.mycompany.gestorvuelos.gui.validation.Codigo;
+import jakarta.validation.constraints.Digits;
 
 /**
  * Almacena todos los datos referentes a la compañia aerea con sus
  * correspondientes etiquetas de validación.
  */
+@NonOrAllOptionalFields
 public class Compania
 {
     /**
      * Identificador único de la compañía.
-     * <pre>Restricciones:
-     *      - Obligatorio.
-     *      - Comprendido entre 1 y 999.
-     *      - Único.
-     * </pre>
+     * @see com.mycompany.gestorvuelos.gui.validation.Prefijo
      */
-    @NotNull(message = "Campo obligatorio")
-    @Digits(integer = 3, fraction = 0)
-    @Min(value = 1, message = "Debe ser positivo mayor a 0")
-    @Max(value = 999, message = "No puede ser mayor a 999")
-    @Unique
+    @Digits(integer = 3, fraction = 0, groups = MonoChecks.class)
+    @Prefijo(groups = MonoChecks.class)
     private Short prefijo;
     
     /**
      * Identificador único inscrito en la IATA.
-     * <pre>Restricciones:
-     *      - Obligatorio.
-     *      - Debe ser una cadena de dos caracteres mayúsculas de tamaño fijo, puede contener dos letras mayúsculas o una mayúscula y un número (en este orden).
-     *      - Único.
-     * </pre>
+     * @see com.mycompany.gestorvuelos.gui.validation.Codigo
      */
-    @NotBlank(message = "Campo obligatorio")
-    @Pattern(regexp = "^([A-Z]{2}|[A-Z][0-9])$",
-            message = "Debe contener dos caracteres en mayúsculas o"
-                    + " un caracter en mayúscula y un número")
-    @Size(max = 2)
-    @Unique
+    @Size(max = 2, groups = MonoChecks.class)
+    @Codigo(groups = MonoChecks.class)
     private String codigo;
     
     /**
@@ -54,8 +40,8 @@ public class Compania
      *      - Máximo 40 caracteres.
      * </pre>
      */
-    @NotBlank(message = "Campo obligatorio")
-    @Size(max = 40, message = "Limitado a 40 caracteres")
+    @NotBlank(message = "Campo obligatorio", groups = MonoChecks.class)
+    @Size(max = 40, message = "Limitado a 40 caracteres", groups = MonoChecks.class)
     private String nombre;
     
     /**
@@ -64,7 +50,7 @@ public class Compania
      *      - Máximo 60 caracteres.
      * </pre>
      */
-    @Size(max = 60, message = "Limitado a 60 caracteres")
+    @Size(max = 60, message = "Limitado a 60 caracteres", groups = MonoChecks.class)
     private String direccionSedeCentral;
     
     /**
@@ -81,8 +67,9 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$", 
-            message = "Debe ser un número internacional: +000 1020304...")
-    @Size(max = 17)
+            message = "Debe ser un número internacional: +000 1020304...", 
+            groups = MonoChecks.class)
+    @Size(max = 17, groups = MonoChecks.class)
     private String telefonoATA;
     
     /**
@@ -92,8 +79,9 @@ public class Compania
      * </pre>
      */
     @Pattern(regexp = "^(\\+[0-9]{3}\\x20[0-9]{7,12})|$",
-            message = "Debe ser un número interncional: +000 1020304...")
-    @Size(max = 17)
+            message = "Debe ser un número interncional: +000 1020304...",
+            groups = MonoChecks.class)
+    @Size(max = 17, groups = MonoChecks.class)
     private String telefonoATC;
     
     /**
