@@ -3,10 +3,11 @@ package com.mycompany.gestorvuelos.business.logic;
 import com.mycompany.gestorvuelos.dto.Aeropuerto;
 import com.mycompany.gestorvuelos.dto.Compania;
 import com.mycompany.gestorvuelos.dto.VueloBase;
+import com.mycompany.gestorvuelos.dto.VueloDiario;
 import java.text.Normalizer;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +74,18 @@ public class ListManager
     }
     
     /**
+     * Obtiene los vuelos diarios correspondientes al vuelo base especificado.
+     * @param codigo Código del vuelo base a filtrar.
+     * @return Vuelos diarios existentes para el vuelo base.
+     */
+    public static List<VueloDiario> getListVueloDiarioByVueloBase(String codigo)
+    {
+        return Util.getListVueloDiario().stream()
+                .filter(vd -> vd.getVueloBase().getCodigo().equals(codigo))
+                .collect(Collectors.toList());
+    }
+    
+    /**
      * Comprueba si el prefijo especificado pertenece a alguna compañía existente.
      * En su defecto, el valor es válido como identificador único de la compañía.
      * @param prefijo Prefijo a validar.
@@ -94,6 +107,21 @@ public class ListManager
     {
         return !Util.getListCompania().stream()
                 .anyMatch(c -> c.getCodigo().equals(codigo));
+    }
+    
+    /**
+     * Comprueba si existen vuelos diarios para la fecha actual en el vuelo base
+     * especificado.
+     * @param listVueloDiario Lista de los vuelos diarios a evaluar.
+     * @return Verdadero si existen vuelos diarios para la fecha actual, falso
+     * en su defecto.
+     */
+    public static boolean isThereVueloDiarioForToday(List<VueloDiario> listVueloDiario)
+    {
+        return listVueloDiario.stream()
+                .anyMatch(vd -> 
+                    DateUtils.compareDates(vd.getFechaSalida(), new Date())
+                );
     }
     
     /**

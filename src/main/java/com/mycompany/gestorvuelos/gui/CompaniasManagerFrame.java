@@ -29,7 +29,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
      */
     public CompaniasManagerFrame()
     {
-        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+        this.VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
         initUtils();
         initComponents();
         setupDocumentListeners();
@@ -54,10 +54,10 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
         try {
             // TODO - Obtener el codigo IATA del aeropuerto base almacenado por el usuario.
             Util.initUtils("ABC");
-        } catch (IOException | IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             Logger.getLogger(
                     CompaniasManagerFrame.class.getName()).log(Level.SEVERE, 
-                    "Excepción de inicialización.", 
+                    ex.getMessage(), 
                     ex);
             this.dispose();
             System.exit(1);
@@ -271,7 +271,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
         compania.setTelefonoATC(tfTelefonoATC.getText());
         
         // Validamos @NonOrAllOptionalFields.
-        Set<ConstraintViolation<Compania>> violations = validator.validate(compania);
+        Set<ConstraintViolation<Compania>> violations = VALIDATOR.validate(compania);
         if (!violations.isEmpty()) {
             throw new IllegalArgumentException(violations.iterator().next().getMessage());
         }
@@ -325,9 +325,8 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
         bRegisterCompania = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Compañías aéreas");
+        setTitle("Gestor de compañías aéreas");
         setMinimumSize(new java.awt.Dimension(600, 880));
-        setPreferredSize(new java.awt.Dimension(600, 880));
 
         pCompaniaDetails.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Detalles de la compañía", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 14))); // NOI18N
         pCompaniaDetails.setLayout(new javax.swing.BoxLayout(pCompaniaDetails, javax.swing.BoxLayout.Y_AXIS));
@@ -626,7 +625,7 @@ public class CompaniasManagerFrame extends javax.swing.JFrame implements Compani
         });
     }
 
-    private final Validator validator;
+    private final Validator VALIDATOR;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bRegisterCompania;
     private javax.swing.JButton bSaveChangesCompania;

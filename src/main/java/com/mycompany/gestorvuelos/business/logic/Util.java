@@ -23,21 +23,29 @@ public class Util
      * Inicializa las variables estáticas permitiéndo el uso de la clase y
      * establece un aeropuerto base de operación.
      * @param aeropuertoBaseCodigoIATA Código IATA del aeropuerto base de operación.
-     * @throws IllegalArgumentException Si las rutas especificadas en el archivo
-     * de propiedades no conducen a un archivo CSV válido.
-     * @throws IOException Si no es posible acceder a los archivos CSV requeridos.
-     * @throws NoSuchElementException Si no encuentra el aeropuerto a establecer como base de operación.
+     * @throws RuntimeException Propaga las excepciones de las funciones utilizadas.
+     * @see PropertiesManager#getCsvFiles
+     * @see CsvManager#retrieveMapMunicipios
+     * @see CsvManager#retrieveListAeropuerto
+     * @see CsvManager#retrieveListCompania
+     * @see CsvManager#retrieveListVueloBase
+     * @see CsvManager#retrieveListVueloDiario
+     * @see ListManager#getAeropuertoByCodigoIATA(java.lang.String)
      */
-    public static void initUtils(@NotEmpty String aeropuertoBaseCodigoIATA) throws IllegalArgumentException, IOException, NoSuchElementException
+    public static void initUtils(@NotEmpty String aeropuertoBaseCodigoIATA) throws RuntimeException
     {
-        csvFiles = PropertiesManager.getCsvFiles();
-        mapMunicipios = CsvManager.retrieveMapMunicipios();
-        listAeropuertos = CsvManager.retrieveListAeropuerto();
-        listCompania = CsvManager.retrieveListCompania();
-        listVueloBase = CsvManager.retrieveListVueloBase();
-        listVueloDiario = CsvManager.retrieveListVueloDiario();
-        aeropuertoGestion = ListManager.getAeropuertoByCodigoIATA(aeropuertoBaseCodigoIATA);
-        initialized = true;
+        try {
+            csvFiles = PropertiesManager.getCsvFiles();
+            mapMunicipios = CsvManager.retrieveMapMunicipios();
+            listAeropuertos = CsvManager.retrieveListAeropuerto();
+            listCompania = CsvManager.retrieveListCompania();
+            listVueloBase = CsvManager.retrieveListVueloBase();
+            listVueloDiario = CsvManager.retrieveListVueloDiario();
+            aeropuertoGestion = ListManager.getAeropuertoByCodigoIATA(aeropuertoBaseCodigoIATA);
+            initialized = true;
+        } catch (IOException | IllegalArgumentException | ArrayIndexOutOfBoundsException | NoSuchElementException ex) {
+            throw new RuntimeException("No ha sido posible inicializar las utilidades requeridas.", ex);
+        }
     }
     
     // <editor-fold defaultstate="collapsed" desc="Getters">

@@ -20,11 +20,11 @@ import com.mycompany.gestorvuelos.gui.interfaces.MonoChecks;
 public class CompaniaValidatorDocumentListener implements DocumentListener
 {
     private Validator validator;
-    private final Class<?> validationType;
+    private final Class<?> VALIDATION_TYPE;
     private CompaniaValidationFormulary parent;
     private String attrName;
     private JLabel violationLabel;
-    private final Class<?> fieldType;
+    private final Class<?> FIELD_TYPE;
 
     /**
      * Valida el atributo de la compañía vinculado al documento al actualizar 
@@ -40,14 +40,14 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
     public CompaniaValidatorDocumentListener(CompaniaValidationFormulary parent, String attrName, JLabel violationLabel) throws IllegalArgumentException
     {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
-        validationType = MonoChecks.class;
+        VALIDATION_TYPE = MonoChecks.class;
         this.parent = parent;
         this.attrName = attrName;
         this.violationLabel = violationLabel;
         
         try {
             // Obtenemos el tipo de dato del campo.
-            fieldType = Compania.class.getDeclaredField(attrName).getType();
+            FIELD_TYPE = Compania.class.getDeclaredField(attrName).getType();
         } catch (NoSuchFieldException ex) {
             throw new IllegalArgumentException(
                     String.format("El campo %s no existe.", attrName), 
@@ -89,9 +89,9 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
         try {
             text = e.getDocument().getText(0, document.getLength());
 
-            if (fieldType.equals(String.class)) {
+            if (FIELD_TYPE.equals(String.class)) {
                 value = text;
-            } else if (fieldType.equals(Short.class)) {
+            } else if (FIELD_TYPE.equals(Short.class)) {
                 value = Short.valueOf(text);
             }
         } catch (BadLocationException ex) {
@@ -117,7 +117,7 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
     private void validateValue(Object value) throws IllegalArgumentException 
     {
         // Comprobamos que el tipo del objeto corresponda con el tipo del campo.
-        if (value != null && !value.getClass().equals(fieldType))
+        if (value != null && !value.getClass().equals(FIELD_TYPE))
         {
             manageViolationMessage("Tipo de valor inválido.");
             return;
@@ -127,15 +127,15 @@ public class CompaniaValidatorDocumentListener implements DocumentListener
 
         // Validamos el objeto en función de su tipo.
         if (value == null) {
-            violations = validator.validateValue(Compania.class, attrName, null, validationType);
+            violations = validator.validateValue(Compania.class, attrName, null, VALIDATION_TYPE);
         } else if (value instanceof String) {
             // Se requiere nulificar las cadenas vacías para evitar intromisiones
             // entre las etiquetas @NotBlank y @Pattern.
             String str = (String) value;
             value = (str.isEmpty()) ? null : str;
-            violations = validator.validateValue(Compania.class, attrName, value, validationType);
+            violations = validator.validateValue(Compania.class, attrName, value, VALIDATION_TYPE);
         } else if (value instanceof Short) {
-            violations = validator.validateValue(Compania.class, attrName, (Short) value, validationType);
+            violations = validator.validateValue(Compania.class, attrName, (Short) value, VALIDATION_TYPE);
         } else {
             throw new IllegalArgumentException("El tipo del dato no es compatible para la validación.");
         }

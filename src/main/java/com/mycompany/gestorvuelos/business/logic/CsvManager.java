@@ -38,7 +38,7 @@ public class CsvManager
     {
         ArrayList<Aeropuerto> listAeropuerto = new ArrayList();
         
-        File aeropuertosCsvFile = Util.getCsvFiles().getAeropuertos();
+        File aeropuertosCsvFile = Util.getCsvFiles().getAEROPUERTOS();
         
         // Codificación UTF-8 con BOM.
         BufferedReader reader = new BufferedReader(new FileReader(aeropuertosCsvFile, StandardCharsets.UTF_8));
@@ -81,7 +81,7 @@ public class CsvManager
     {
         ArrayList<Compania> listCompania = new ArrayList();
         
-        File companiasCsvFile = Util.getCsvFiles().getCompanias();
+        File companiasCsvFile = Util.getCsvFiles().getCOMPANIAS();
         
         // Codificación UTF-8 con BOM.
         BufferedReader reader = new BufferedReader(new FileReader(companiasCsvFile, StandardCharsets.UTF_8));
@@ -135,7 +135,7 @@ public class CsvManager
     public static List<VueloBase> retrieveListVueloBase() throws IOException
     {
         List<VueloBase> listVueloBase = new ArrayList();
-        File vuelosBaseCsvFile = Util.getCsvFiles().getVuelosBase();
+        File vuelosBaseCsvFile = Util.getCsvFiles().getVUELOSBASE();
         
         // Codificación UTF-8 sin BOM.
         BufferedReader reader = new BufferedReader(new FileReader(vuelosBaseCsvFile, StandardCharsets.UTF_8));
@@ -214,7 +214,7 @@ public class CsvManager
     public static List<VueloDiario> retrieveListVueloDiario() throws IOException
     {
         List<VueloDiario> listVueloDiario = new ArrayList();
-        File vuelosDiariosCsvFile = Util.getCsvFiles().getVuelosDiarios();
+        File vuelosDiariosCsvFile = Util.getCsvFiles().getVUELOSDIARIOS();
         
         // Codificación UTF-8 sin BOM.
         BufferedReader reader = new BufferedReader(new FileReader(vuelosDiariosCsvFile, StandardCharsets.UTF_8));
@@ -241,7 +241,7 @@ public class CsvManager
             String fechaSalidaString = vueloDiarioData[1];
             Date fechaSalida;
             try {
-                fechaSalida = DateUtils.getDate(fechaSalidaString);
+                fechaSalida = DateUtils.parseDate(fechaSalidaString);
             } catch (ParseException ex) {
                 fechaSalida = null;
             }
@@ -291,7 +291,7 @@ public class CsvManager
     protected static Map<String, Integer> retrieveMapMunicipios() throws IOException
     {
         Map<String, Integer> mapMunicipios = new HashMap();
-        File municipiosCsvFile = Util.getCsvFiles().getMunicipios();
+        File municipiosCsvFile = Util.getCsvFiles().getMUNICIPIOS();
         
         // Codificación ANSI.
         BufferedReader reader = new BufferedReader(new FileReader(municipiosCsvFile, Charset.forName("Cp1252")));

@@ -16,9 +16,9 @@ import javax.swing.text.DocumentFilter;
  */
 public class MaxCharsDocumentFilter extends DocumentFilter
 {
-    private final Class<?> dtoClass;
-    private final String attrName;
-    private final JLabel violationLabel;
+    private final Class<?> DTO_CLASS;
+    private final String ATTR_NAME;
+    private final JLabel LABEL_VIOLATION;
 
     /**
      * Aplica la mutación del documento solo en caso de no superar el límite de 
@@ -34,9 +34,9 @@ public class MaxCharsDocumentFilter extends DocumentFilter
      */
     public MaxCharsDocumentFilter(Class<?> dtoClass, String attrName, JLabel violationLabel)
     {
-        this.dtoClass = dtoClass;
-        this.attrName = attrName;
-        this.violationLabel = violationLabel;
+        this.DTO_CLASS = dtoClass;
+        this.ATTR_NAME = attrName;
+        this.LABEL_VIOLATION = violationLabel;
     }
 
     @Override
@@ -65,11 +65,11 @@ public class MaxCharsDocumentFilter extends DocumentFilter
             
             // Mostramos el error de validación.
             String message = String.format("Campo limitado a %d caracteres", maxLength);
-            violationLabel.setText(message);
+            LABEL_VIOLATION.setText(message);
             return;
         }
 
-        violationLabel.setText("");
+        LABEL_VIOLATION.setText("");
         super.replace(fb, offset, length, text, attrs);
     }
     
@@ -85,7 +85,7 @@ public class MaxCharsDocumentFilter extends DocumentFilter
     {
         try {
             // Obtenemos el campo correspondiente al atributo en el objeto DTO.
-            Field field = dtoClass.getDeclaredField(attrName);
+            Field field = DTO_CLASS.getDeclaredField(ATTR_NAME);
             
             // Obtenemos las anotaciones, solo una de ellas podrá estar presente.
             Size sizeAnnotation = field.getDeclaredAnnotation(Size.class);

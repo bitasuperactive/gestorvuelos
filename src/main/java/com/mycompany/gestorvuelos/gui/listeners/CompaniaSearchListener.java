@@ -22,9 +22,9 @@ import javax.swing.text.Document;
  */
 public class CompaniaSearchListener implements DocumentListener
 {
-    private final JComboBox cbSearchType;
-    private final JTable table;
-    private final boolean shorterModel;
+    private final JComboBox CB_SEARCH_TYPE;
+    private final JTable TABLE;
+    private final boolean SHORTER_MODEL;
 
     /**
      * Constructor por defecto.
@@ -34,9 +34,9 @@ public class CompaniaSearchListener implements DocumentListener
      */
     public CompaniaSearchListener(JComboBox cbSearchType, JTable table, boolean shorterModel)
     {
-        this.cbSearchType = cbSearchType;
-        this.table = table;
-        this.shorterModel = shorterModel;
+        this.CB_SEARCH_TYPE = cbSearchType;
+        this.TABLE = table;
+        this.SHORTER_MODEL = shorterModel;
     }
 
     /**
@@ -65,7 +65,7 @@ public class CompaniaSearchListener implements DocumentListener
     
     /**
      * Actualiza la tabla de compañías en base al tipo de filtrado seleccionado 
-     * en el JComboBox cbSearchType y al valor introducido en el documento del JTextField.
+ en el JComboBox CB_SEARCH_TYPE y al valor introducido en el documento del JTextField.
      * @param e Evento del documento (insert/remove).
      * @see ListManager#getListCompaniaByPrefijo(int)
      * @see ListManager#getListCompaniaByNombre(java.lang.String)
@@ -81,11 +81,11 @@ public class CompaniaSearchListener implements DocumentListener
         }
         
         if (text.isEmpty()) {
-            table.setModel(new CompaniaTableModel(Util.getListCompania(), shorterModel));
+            TABLE.setModel(new CompaniaTableModel(Util.getListCompania(), SHORTER_MODEL));
             return;
         }
         
-        String searchTypeString = cbSearchType.getSelectedItem().toString();
+        String searchTypeString = CB_SEARCH_TYPE.getSelectedItem().toString();
         CompaniaSearchTypeEnum searchType = CompaniaSearchTypeEnum.valueOf(searchTypeString);
         List<Compania> listCompania = new ArrayList<>();
         
@@ -102,6 +102,6 @@ public class CompaniaSearchListener implements DocumentListener
                 listCompania = ListManager.getListCompaniaByNombre(text);
         }
         
-        table.setModel(new CompaniaTableModel(listCompania, shorterModel));
+        TABLE.setModel(new CompaniaTableModel(listCompania, SHORTER_MODEL));
     }
 }

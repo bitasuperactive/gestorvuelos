@@ -37,8 +37,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Co
     public RegisterNewCompaniaDialog(java.awt.Frame parent, boolean modal, CompaniaTableModel model)  throws NullPointerException
     {
         super(parent, modal);
-        this.model = model;
-        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+        this.COMPANIA_TABLE_MODEL = model;
+        this.VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
         checkUtilsInitialized();
         initComponents();
         setLocationRelativeTo(parent);
@@ -148,7 +148,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Co
         
         // Actualizamos el modelo de la lista de compañías disponibles con la
         // nueva compañía, actualizando indirectamente el Util.List<Compania> base.
-        model.addCompania(compania);
+        COMPANIA_TABLE_MODEL.addCompania(compania);
         
         String message = String.format("Compañía [ %s ] registrada con éxito.", 
                 compania.getNombre());
@@ -209,7 +209,7 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Co
         compania.setTelefonoATC(tfTelefonoATC.getText());
         
         // Validamos @NonOrAllOptionalFields.
-        Set<ConstraintViolation<Compania>> violations = validator.validate(compania);
+        Set<ConstraintViolation<Compania>> violations = VALIDATOR.validate(compania);
         if (!violations.isEmpty()) {
             throw new IllegalArgumentException(violations.iterator().next().getMessage());
         }
@@ -494,8 +494,8 @@ public class RegisterNewCompaniaDialog extends javax.swing.JDialog implements Co
         registerCompania();
     }//GEN-LAST:event_bRegisterCompaniaActionPerformed
 
-    private final Validator validator;
-    private final CompaniaTableModel model;
+    private final Validator VALIDATOR;
+    private final CompaniaTableModel COMPANIA_TABLE_MODEL;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bRegisterCompania;

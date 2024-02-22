@@ -89,18 +89,16 @@ public class CompaniaTableModel extends AbstractTableModel
         return columnNames.length;
     }
 
-    /**
-     * @throws IndexOutOfBoundsException Si el objeto correspondiente al 
-     * rowIndex y al columnIndex no existe
-     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) throws IndexOutOfBoundsException
     {
         Compania compania = listCompania.get(rowIndex);
-        // Para obtener el prefijo (0) y el nombre (2).
-        if (shorterModel)
-            columnIndex *= 2;
         
+        // Para obtener el prefijo (0) y el nombre (2).
+        if (shorterModel) {
+            columnIndex *= 2;
+        }
+
         switch(columnIndex)
         {
             case 0 -> {
@@ -124,16 +122,18 @@ public class CompaniaTableModel extends AbstractTableModel
             case 6 -> {
                 return compania.getTelefonoATA();
             }
-            default -> throw new IndexOutOfBoundsException();
+            default ->
+                throw new IndexOutOfBoundsException(
+                        String.format(
+                                "La columna %d no existe en este modelo.",
+                                columnIndex)
+                );
         }
     }
 
     @Override
     public String getColumnName(int column)
     {
-        if (column >= columnNames.length)
-            return "";
-        
         return columnNames[column];
     }
 
